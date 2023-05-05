@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\BaseOperator.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> BaseOperator.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/70</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/68</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/21</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/95</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.17;
+&nbsp;
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+&nbsp;
+import "./utils/Pausable.sol";
+import "./interfaces/IFundraiseFactory.sol";
+import "./interfaces/ITokenFactory.sol";
+import "./interfaces/IVestingOperator.sol";
+import "./interfaces/ILaunchpadStaking.sol";
+import "./interfaces/ILaunchpadToken.sol";
+import "./interfaces/ILiquidityVault.sol";
+&nbsp;
+contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
+    using SafeERC20 for IERC20;
+&nbsp;
+    uint public constant DEFAULT_FUNDRAISE_PRICE = 5000; //5000e18; 
+    uint public constant MINIMUM_LIQUIDITY_SHARE = 2; // 50 %
+    uint public constant MINIMUM_LAUNCHPAD_SHARE = 4; // 25 %
+    uint public constant MINIMUM_LIQUIDITY_LOCK_DURATION = 150; //90 weeks; 
+    uint public constant MINIMUM_TIME_TO_FUNDRAISE_START = 1; //8 weeks;
+    uint public constant MINIMUM_TIME_TO_CANCEL_FUNDRAISE = 1; //16 weeks;
+    uint public constant MINIMUM_ETHER_LIQUIDITY = 1e18; //10e18; 
+&nbsp;
+    address public immutable liquidityVault;
+    address public immutable launchpadToken;
+    address public immutable launchpadStaking;
+    address public immutable fundraiseFactory;
+    address public immutable vestingOperator;
+&nbsp;
+    address private constant USDCAddress = 0x3328358128832A260C76A4141e19E2A943CD4B6D; // hardcoded to Ethereum Mainnet
+    address private constant USDTAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    address private constant BUSDAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+&nbsp;
+    address[] public allSupportedTokens;
+&nbsp;
+    bytes32 public constant TOKEN_MINTER = keccak256(abi.encode("TOKEN_MINTER"));
+&nbsp;
+    mapping(address =&gt; SupportedTokenData) public tokenData; 
+    mapping(address =&gt; mapping(address =&gt; bool)) public refunded;
+&nbsp;
+    enum Amount{Manage, Launch, Liquid}
+&nbsp;
+    enum Status{Audit, Rejected, Confirmed, Fundraise, Launched, Cancellation}
+&nbsp;
+    struct SupportedTokenData {
+        string name;
+        string symbol;
+        address managementAddress;
+        address minterAddress;
+        address fundraiseAddress;
+        uint fundraiseStart;
+        address vestingAddress;
+        uint[3] amounts;
+        uint[3] fundsRaised;
+        uint status;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    constructor(</span>
+        address _launchpadToken, 
+        address _fundraiseFactory, 
+        address _vestingOperator,  
+        address _liquidityVault,
+        address _launchpadStaking,
+        address _tokenMinter
+    )
+    {
+        launchpadToken = _launchpadToken;
+        fundraiseFactory = _fundraiseFactory;
+        vestingOperator = _vestingOperator;
+        liquidityVault = _liquidityVault;
+        launchpadStaking = _launchpadStaking;
+<span class="cstat-no" title="statement not covered" >        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender)</span>;
+<span class="cstat-no" title="statement not covered" >        _setupRole(TOKEN_MINTER, _tokenMinter)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function confirmTokenToFundraise(address _token, address _minter)external onlyRole(DEFAULT_ADMIN_ROLE){</span>
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Audit))</span>;
+<span class="cstat-no" title="statement not covered" >        statusShiftInternal(_token, uint(Status.Confirmed))</span>;
+        tokenData[_token].minterAddress = _minter;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function rejectTokenToFundraise(address _token)external onlyRole(DEFAULT_ADMIN_ROLE){</span>
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Audit))</span>;
+<span class="cstat-no" title="statement not covered" >        statusShiftInternal(_token, uint(Status.Rejected))</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function createFundraise( </span>
+        address _token,
+        uint[3] memory _amounts, // 0 - teamAmount,  1 - launchPad amount , 2 - liquidityAmount 
+        uint[5] memory _oneTokenPrice, // enum Tier
+        uint _fundraiseStart,
+        uint _liquidityLockDuration, // if 0 = burn
+        address _minter 
+    )
+        external 
+        payable 
+        nonReentrant()
+        paused()
+        returns(address _managementAddress) // actually returns fundraise address
+    {
+        _managementAddress = msg.sender;
+<span class="cstat-no" title="statement not covered" >        uint _etherLiquidity = msg.value;</span>
+<span class="cstat-no" title="statement not covered" >        managementVerificationInternal(_token)</span>;
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Confirmed))</span>;
+<span class="cstat-no" title="statement not covered" >        balanceVerificationInternal(launchpadToken, _managementAddress, DEFAULT_FUNDRAISE_PRICE)</span>;
+<span class="cstat-no" title="statement not covered" >        uint _totalAmount = _amounts[uint(Amount.Manage)] + _amounts[uint(Amount.Launch)] + _amounts[uint(Amount.Liquid)];</span>
+<span class="cstat-no" title="statement not covered" >        ratioVerificationInternal(_amounts[uint(Amount.Liquid)], MINIMUM_LIQUIDITY_SHARE, _totalAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        ratioVerificationInternal(_amounts[uint(Amount.Launch)], MINIMUM_LAUNCHPAD_SHARE, _totalAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        require(_fundraiseStart &gt;= block.timestamp + MINIMUM_TIME_TO_FUNDRAISE_START, "BaseOperator: Too soon to start fundraise")</span>;
+<span class="cstat-no" title="statement not covered" >        require(_liquidityLockDuration == 0 || _liquidityLockDuration &gt;= MINIMUM_LIQUIDITY_LOCK_DURATION, "BaseOperator: Too scant liquidity lock duration")</span>;
+<span class="cstat-no" title="statement not covered" >        require(_etherLiquidity &gt;= MINIMUM_ETHER_LIQUIDITY, "BaseOperator: Not enough ether to provide liquidity")</span>;
+<span class="cstat-no" title="statement not covered" >        require(_minter == tokenData[_token].minterAddress, "BaseOperator: Wrong minter address")</span>;
+&nbsp;
+        tokenData[_token].fundraiseAddress = IFundraiseFactory(fundraiseFactory).createFundraise(
+            _token, 
+            _amounts[uint(Amount.Launch)], 
+            _oneTokenPrice, 
+            _fundraiseStart, 
+            _managementAddress
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        IERC20Token(_token).initialize(</span>
+            liquidityVault,
+            _amounts[uint(Amount.Manage)] + _amounts[uint(Amount.Launch)],
+            _amounts[uint(Amount.Liquid)],
+            _minter
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        ILiquidityVault(liquidityVault)._initializeNewToken{value: _etherLiquidity}(</span>
+            _token, 
+            _managementAddress, 
+            _amounts[uint(Amount.Liquid)], 
+            _fundraiseStart,
+            _liquidityLockDuration
+        );
+&nbsp;
+        tokenData[_token].fundraiseStart = _fundraiseStart;
+        tokenData[_token].amounts = _amounts;
+<span class="cstat-no" title="statement not covered" >        statusShiftInternal(_token, uint(Status.Fundraise))</span>;
+<span class="cstat-no" title="statement not covered" >        paymentInternal(_managementAddress)</span>;
+        _managementAddress = tokenData[_token].fundraiseAddress;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function fundraiseParticipate(</span>
+        address _token, 
+        uint _amount, 
+        address _stablecoinAddress
+    )
+        external 
+        nonReentrant() 
+        paused()
+    {
+<span class="cstat-no" title="statement not covered" >        address _user = msg.sender;</span>
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Fundraise))</span>;
+<span class="cstat-no" title="statement not covered" >        stablecoinAddressVerificationInternal(_stablecoinAddress)</span>;
+<span class="cstat-no" title="statement not covered" >        uint _underlyingAmount = IFundraise(tokenData[_token].fundraiseAddress).participate(_user, _amount, _stablecoinAddress);</span>
+<span class="cstat-no" title="statement not covered" >        balanceVerificationInternal(_stablecoinAddress, _user, _underlyingAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        IERC20(_stablecoinAddress).safeTransferFrom(_user, address(this), _underlyingAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        if(_stablecoinAddress == USDCAddress){</span>
+            tokenData[_token].fundsRaised[0] += _underlyingAmount;
+        }
+<span class="cstat-no" title="statement not covered" >        if(_stablecoinAddress == USDTAddress){</span>
+            tokenData[_token].fundsRaised[1] += _underlyingAmount;
+        } else {
+            tokenData[_token].fundsRaised[2] += _underlyingAmount;
+        }
+&nbsp;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function cancelFundraise(address _token)external onlyRole(DEFAULT_ADMIN_ROLE){</span>
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Fundraise))</span>;
+<span class="cstat-no" title="statement not covered" >        require(block.timestamp &gt;= tokenData[_token].fundraiseStart + MINIMUM_TIME_TO_CANCEL_FUNDRAISE, "BaseOperator: Too soon to cancel")</span>;
+<span class="cstat-no" title="statement not covered" >        statusShiftInternal(_token, uint(Status.Cancellation))</span>;
+    } 
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function refund(address _token, address _stablecoinAddress)external nonReentrant(){</span>
+<span class="cstat-no" title="statement not covered" >        address _user = msg.sender;</span>
+<span class="cstat-no" title="statement not covered" >        require(refunded[_user][_token] == false, "BaseOperator: Refunded already")</span>;
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Cancellation))</span>;
+<span class="cstat-no" title="statement not covered" >        stablecoinAddressVerificationInternal(_stablecoinAddress)</span>;
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        (uint _tier, , uint _spentAllocation) = IFundraise(tokenData[_token].fundraiseAddress)._userData(_user);</span>
+<span class="cstat-no" title="statement not covered" >        uint _tokenPrice = IFundraise(tokenData[_token].fundraiseAddress).oneTokenPrice(_tier);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        uint _refundAmount = _tokenPrice * _spentAllocation;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        balanceVerificationInternal(_stablecoinAddress, address(this), _refundAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        IERC20(_stablecoinAddress).safeTransfer(_user, _refundAmount)</span>;
+&nbsp;
+        refunded[_user][_token] = true;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function createSimpleScheduleVesting( </span>
+        address _token,
+        uint[6] memory _cliffTimestamp
+    )
+        external 
+        nonReentrant()
+        paused()
+        returns(address _vestingAddress)
+    {   
+<span class="cstat-no" title="statement not covered" >        managementVerificationInternal(_token)</span>;
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Fundraise))</span>;
+&nbsp;
+        _vestingAddress = IVestingOperator(vestingOperator).createSimpleScheduleVesting( 
+            tokenData[_token].managementAddress,
+            _token,
+            tokenData[_token].fundraiseAddress,
+            _cliffTimestamp,
+            tokenData[_token].fundraiseStart,
+            tokenData[_token].amounts[uint(Amount.Manage)]
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        createVestingInternal(_token, _vestingAddress)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function createScheduleVesting( </span>
+        address _token,
+        uint[30] memory _cliffTimestamp, 
+        uint[30] memory _cliffAmount
+    )
+        external 
+        nonReentrant()
+        paused()
+        returns(address _vestingAddress)
+    {
+<span class="cstat-no" title="statement not covered" >        managementVerificationInternal(_token)</span>;
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Fundraise))</span>;
+&nbsp;
+        _vestingAddress = IVestingOperator(vestingOperator).createScheduleVesting(  
+            tokenData[_token].managementAddress,
+            _token,
+            tokenData[_token].fundraiseAddress,
+            _cliffTimestamp, 
+            _cliffAmount,
+            tokenData[_token].fundraiseStart,
+            tokenData[_token].amounts[uint(Amount.Manage)]
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        createVestingInternal(_token, _vestingAddress)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function createLinearVesting( </span>
+        address _token,
+        uint _vestingStartTimestamp,
+        uint _vestingTeamStartTimestamp,
+        uint _vestingDuration
+    )
+        external 
+        nonReentrant()
+        paused()
+        returns(address _vestingAddress)
+    {
+<span class="cstat-no" title="statement not covered" >        managementVerificationInternal(_token)</span>;
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Fundraise))</span>;
+&nbsp;
+        _vestingAddress = IVestingOperator(vestingOperator).createLinearVesting(  
+            _token,  
+            tokenData[_token].managementAddress, 
+            tokenData[_token].fundraiseAddress, 
+            tokenData[_token].fundraiseStart,
+            tokenData[_token].amounts[uint(Amount.Manage)], 
+            _vestingStartTimestamp,
+            _vestingTeamStartTimestamp,
+            _vestingDuration
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        createVestingInternal(_token, _vestingAddress)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function createCliffLinearVesting( </span>
+        address _token,
+        uint _vestingDuration,
+        uint[6] memory _vestingStartTimestamp
+    )
+        external 
+        nonReentrant()
+        paused()
+        returns(address _vestingAddress)
+    {
+<span class="cstat-no" title="statement not covered" >        managementVerificationInternal(_token)</span>;
+<span class="cstat-no" title="statement not covered" >        statusVerificationInternal(_token, uint(Status.Fundraise))</span>;
+&nbsp;
+        _vestingAddress = IVestingOperator(vestingOperator).createCliffLinearVesting(  
+            _token,  
+            tokenData[_token].managementAddress, 
+            tokenData[_token].fundraiseAddress, 
+            tokenData[_token].fundraiseStart,
+            tokenData[_token].amounts[uint(Amount.Manage)],
+            _vestingDuration,
+            _vestingStartTimestamp
+        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        createVestingInternal(_token, _vestingAddress)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function changeOver()external onlyRole(DEFAULT_ADMIN_ROLE){</span>
+<span class="cstat-no" title="statement not covered" >        _changeOver()</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function tokenToAuditExternal(</span>
+        address _token,
+        string calldata _name, 
+        string calldata _symbol, 
+        address _managementAddress
+    )
+        external 
+        onlyRole(TOKEN_MINTER)
+    {
+        tokenData[_token].name = _name;
+        tokenData[_token].symbol = _symbol;
+        tokenData[_token].managementAddress = _managementAddress;
+        tokenData[_token].status = uint(Status.Audit);
+<span class="cstat-no" title="statement not covered" >        allSupportedTokens.push(_token)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function statusShiftInternal(address _token, uint _status)internal { </span>
+        tokenData[_token].status = _status;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function ratioVerificationInternal(uint _amount, uint _minimum, uint _totalAmount)internal pure {</span>
+<span class="cstat-no" title="statement not covered" >        require(_amount * _minimum &gt;= _totalAmount, "BaseOperator: Wrong tokens amounts ratio")</span>;
+    }
+            
+<span class="fstat-no" title="function not covered" >    function statusVerificationInternal(address _token, uint _status)internal view {</span>
+<span class="cstat-no" title="statement not covered" >        require(tokenData[_token].status == _status, "BaseOperator: Invalid status")</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function balanceVerificationInternal(address _token, address _user, uint _kink)internal view {</span>
+<span class="cstat-no" title="statement not covered" >        require(IERC20(_token).balanceOf(_user) &gt;= _kink, "BaseOperator: Not enough tokens")</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function stablecoinAddressVerificationInternal(address _stablecoinAddress)internal pure {</span>
+<span class="cstat-no" title="statement not covered" >        require(_stablecoinAddress == USDCAddress || _stablecoinAddress == USDTAddress || _stablecoinAddress == BUSDAddress, "BaseOperator: Wrong stablecoin")</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function managementVerificationInternal(address _token)internal view {   </span>
+<span class="cstat-no" title="statement not covered" >        require(msg.sender == tokenData[_token].managementAddress, "BaseOperator: You are not a management")</span>;
+    }
+    
+<span class="fstat-no" title="function not covered" >    function paymentInternal(address _managementAddress)internal {</span>
+<span class="cstat-no" title="statement not covered" >        uint _halfPayment = DEFAULT_FUNDRAISE_PRICE / 2;</span>
+<span class="cstat-no" title="statement not covered" >        IERC20(launchpadToken).safeTransferFrom(_managementAddress, launchpadStaking, _halfPayment)</span>;
+<span class="cstat-no" title="statement not covered" >        ILaunchpadToken(launchpadToken).burnFrom(_managementAddress, _halfPayment)</span>;
+<span class="cstat-no" title="statement not covered" >        ILaunchpadStaking(launchpadStaking)._addPaymentTokens(_halfPayment)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function createVestingInternal(address _token, address _vestingAddress)internal {</span>
+        tokenData[_token].vestingAddress = _vestingAddress;
+<span class="cstat-no" title="statement not covered" >        uint _amountToVesting = tokenData[_token].amounts[uint(Amount.Manage)] + tokenData[_token].amounts[uint(Amount.Launch)];</span>
+<span class="cstat-no" title="statement not covered" >        IERC20(_token).safeTransfer(_vestingAddress, _amountToVesting)</span>;
+<span class="cstat-no" title="statement not covered" >        statusShiftInternal(_token, uint(Status.Launched))</span>;
+<span class="cstat-no" title="statement not covered" >        IERC20(USDCAddress).safeTransfer(tokenData[_token].managementAddress, tokenData[_token].fundsRaised[0])</span>;
+<span class="cstat-no" title="statement not covered" >        IERC20(USDTAddress).safeTransfer(tokenData[_token].managementAddress, tokenData[_token].fundsRaised[1])</span>;
+<span class="cstat-no" title="statement not covered" >        IERC20(BUSDAddress).safeTransfer(tokenData[_token].managementAddress, tokenData[_token].fundsRaised[2])</span>;
+    } 
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Apr 24 2023 01:02:16 GMT+0400 (Азербайджан, стандартное время)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
