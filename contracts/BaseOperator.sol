@@ -17,13 +17,13 @@ import "./interfaces/ILiquidityVault.sol";
 contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
-    uint public constant DEFAULT_FUNDRAISE_PRICE = 5000; //5000e18; 
-    uint public constant MINIMUM_LIQUIDITY_SHARE = 2; // 50 %
-    uint public constant MINIMUM_LAUNCHPAD_SHARE = 4; // 25 %
-    uint public constant MINIMUM_LIQUIDITY_LOCK_DURATION = 150; //90 weeks; 
-    uint public constant MINIMUM_TIME_TO_FUNDRAISE_START = 1; //8 weeks;
-    uint public constant MINIMUM_TIME_TO_CANCEL_FUNDRAISE = 1; //16 weeks;
-    uint public constant MINIMUM_ETHER_LIQUIDITY = 1e18; //10e18; 
+    uint public constant DEFAULT_FUNDRAISE_PRICE = 5000e18;  
+    uint public constant MINIMUM_LIQUIDITY_SHARE = 2; 
+    uint public constant MINIMUM_LAUNCHPAD_SHARE = 4; 
+    uint public constant MINIMUM_LIQUIDITY_LOCK_DURATION = 90 weeks; 
+    uint public constant MINIMUM_TIME_TO_FUNDRAISE_START = 8 weeks; 
+    uint public constant MINIMUM_TIME_TO_CANCEL_FUNDRAISE = 16 weeks; 
+    uint public constant MINIMUM_ETHER_LIQUIDITY = 10e18; 
 
     address public immutable liquidityVault;
     address public immutable launchpadToken;
@@ -31,9 +31,9 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
     address public immutable fundraiseFactory;
     address public immutable vestingOperator;
 
-    address private constant USDCAddress = 0x3328358128832A260C76A4141e19E2A943CD4B6D; // hardcoded to Ethereum Mainnet
-    address private constant USDTAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
-    address private constant BUSDAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    address private constant USDCAddress = address(0); // hardcoded to required network
+    address private constant USDTAddress = address(0);
+    address private constant BUSDAddress = address(0);
 
     address[] public allSupportedTokens;
 
@@ -182,15 +182,11 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         require(refunded[_user][_token] == false, "BaseOperator: Refunded already");
         statusVerificationInternal(_token, uint(Status.Cancellation));
         stablecoinAddressVerificationInternal(_stablecoinAddress);
-
         (uint _tier, , uint _spentAllocation) = IFundraise(tokenData[_token].fundraiseAddress)._userData(_user);
         uint _tokenPrice = IFundraise(tokenData[_token].fundraiseAddress).oneTokenPrice(_tier);
-
         uint _refundAmount = _tokenPrice * _spentAllocation;
-
         balanceVerificationInternal(_stablecoinAddress, address(this), _refundAmount);
         IERC20(_stablecoinAddress).safeTransfer(_user, _refundAmount);
-
         refunded[_user][_token] = true;
     }
 

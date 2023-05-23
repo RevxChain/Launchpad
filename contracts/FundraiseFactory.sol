@@ -23,8 +23,8 @@ contract Fundraise is AccessControl, ReentrancyGuard{
     uint public immutable vestingStart;
 
     uint private constant ACCURACY = 1e18;
-    uint private constant fundraiseDuration = 5;// 5 days
-    uint private constant fundraiseRoundDuration = 1;// 1 days
+    uint private constant fundraiseDuration = 5 days;
+    uint private constant fundraiseRoundDuration = 1 days;
 
     uint[5] public oneTokenPrice;
     uint[3] public stablecoinsDecimals;
@@ -33,16 +33,16 @@ contract Fundraise is AccessControl, ReentrancyGuard{
     address private immutable operatorAddress;
     address private immutable launchpadStakingAddress;
 
-    address private constant BUSDAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    address private constant BUSDAddress = address(0); // hardcoded to required network
 
     mapping(address => Participant) public participants;
 
     enum Tier{FCFS, First, Second, Third, Fourth}
 
     struct Participant {
-        uint tier; // 0-1-2-3-4
-        uint totalAllocation; // tokens
-        uint spentAllocation; // tokens
+        uint tier; 
+        uint totalAllocation; 
+        uint spentAllocation; 
     }
 
     constructor(
@@ -77,14 +77,20 @@ contract Fundraise is AccessControl, ReentrancyGuard{
         _setupRole(DEFAULT_ADMIN_ROLE, _operatorAddress);
     }
 
-    function participate(address _user, uint _amount, address _stablecoinAddress)external onlyRole(DEFAULT_ADMIN_ROLE) returns(uint _underlyingAmount){
-        
+    function participate(
+        address _user, 
+        uint _amount, 
+        address _stablecoinAddress
+    )
+        external 
+        onlyRole(DEFAULT_ADMIN_ROLE) 
+        returns(uint _underlyingAmount)
+    {
         require(participants[_user].totalAllocation >= participants[_user].spentAllocation);
-        require(_amount >= ACCURACY, "Invalid amount");
-
+        require(_amount >= ACCURACY, "Fundraise: invalid amount");
         uint _actualTierRound = calculateActualRoundInternal(fundraiseStart, fundraiseDuration, fundraiseRoundDuration);
         (uint _tier, ) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
-        require(_actualTierRound == _tier, "It is not time for you");
+        require(_actualTierRound == _tier, "Fundraise: it is not time for you");
         uint _actualTierUsers;
         if(actualTierRound != _actualTierRound){
             if(_actualTierRound == uint(Tier.FCFS)){
@@ -101,7 +107,7 @@ contract Fundraise is AccessControl, ReentrancyGuard{
 
             actualTierRound = _actualTierRound;
         }   
-        require(actualAllocation >= _amount, "Not enough allocation");
+        require(actualAllocation >= _amount, "Fundraise: not enough allocation");
 
         uint _decimals;
         
@@ -112,23 +118,27 @@ contract Fundraise is AccessControl, ReentrancyGuard{
         }
 
         _underlyingAmount = _amount * oneTokenPrice[_actualTierRound] / _decimals; 
-        
-
         if(participants[_user].totalAllocation == 0){
             participants[_user].tier = _tier;
             participants[_user].totalAllocation = actualAllocation;
         }
 
-        require(participants[_user].totalAllocation >= participants[_user].spentAllocation + _amount, "Not enough allocation");
-
+        require(participants[_user].totalAllocation >= participants[_user].spentAllocation + _amount, "Fundraise:  not enough allocation");
         participants[_user].spentAllocation += _amount;
         unrealizedTokensAmount -= _amount;
-
     }
 
-    function calculateActualRoundInternal(uint _fundraiseStart, uint _fundraiseDuration, uint _fundraiseRoundDuration)internal view returns(uint){
-        require(_fundraiseStart + _fundraiseDuration >= block.timestamp, "Fundraise is closed");
-        require(block.timestamp >= _fundraiseStart, "Fundraise is not opened yet");
+    function calculateActualRoundInternal(
+        uint _fundraiseStart, 
+        uint _fundraiseDuration, 
+        uint _fundraiseRoundDuration
+    )
+        internal 
+        view 
+        returns(uint)
+    {
+        require(_fundraiseStart + _fundraiseDuration >= block.timestamp, "Fundraise: fundraise is closed");
+        require(block.timestamp >= _fundraiseStart, "Fundraise: fundraise is not opened yet");
         if(block.timestamp >= _fundraiseStart + _fundraiseRoundDuration * uint(Tier.Fourth)){ 
             return uint(Tier.FCFS);
         } else {
@@ -173,7 +183,7 @@ contract FundraiseFactory is AccessControlOperator {
         onlyRole(DEFAULT_CALLER)
         returns(address _address)
     {
-        require(_token != address(0), "Zero address");
+        require(_token != address(0), "FundraiseFactory: Zero address");
 
         Fundraise _fundraise = new Fundraise(
             _totalAmount, 

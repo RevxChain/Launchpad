@@ -22,7 +22,7 @@ contract SimpleScheduleVesting {
     enum Tier{FCFS, First, Second, Third, Fourth, Team}
 
     modifier onlyCaller(address _who){
-        require(_who == defaultCaller, "Invalid call");
+        require(_who == defaultCaller, "Vesting: Invalid call");
         _;
     }
 
@@ -91,7 +91,7 @@ contract ScheduleVesting {
     enum Tier{FCFS, First, Second, Third, Fourth, Team}
 
     modifier onlyCaller(address _who){
-        require(_who == defaultCaller, "Invalid call");
+        require(_who == defaultCaller, "Vesting: Invalid call");
         _;
     }
 
@@ -122,7 +122,7 @@ contract ScheduleVesting {
         x = 0;
 
         for(uint i; i < _cliffTimestamp.length - 11; i += 5){
-            require(_cliffTimestamp[i] > _cliffTimestamp[i + 5], "BaseOperator: Wrong cliff timestamps 0x01");
+            require(_cliffTimestamp[i] > _cliffTimestamp[i + 5], "Vesting: Wrong cliff timestamps 0x01");
         }
 
         for(uint i; i < TIERS; i++){

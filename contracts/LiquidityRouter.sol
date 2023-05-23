@@ -18,10 +18,9 @@ contract LiquidityRouter is AccessControlOperator, ReentrancyGuard {
     address public immutable uniswapRouterAddress;
     address public immutable uniswapFactoryAddress;
 
-    address public constant WETH = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4; // hardcoded to Ethereum mainnet
+    address public constant WETH = address(0); // hardcoded to required network
 
-
-    constructor(address _uniswapRouterAddress, address _uniswapFactoryAddress){// need to hardcode too
+    constructor(address _uniswapRouterAddress, address _uniswapFactoryAddress){
         uniswapRouterAddress = _uniswapRouterAddress;
         uniswapFactoryAddress = _uniswapFactoryAddress;
     }
@@ -75,8 +74,7 @@ contract LiquidityRouter is AccessControlOperator, ReentrancyGuard {
         );
 
         _pairAddress = IUniswapV2Factory(uniswapFactoryAddress).getPair(_token, WETH);
-        require(IUniswapV2ERC20(_pairAddress).balanceOf(_receiver) >= _liquidity, "0x00");
+        require(IUniswapV2ERC20(_pairAddress).balanceOf(_receiver) >= _liquidity, "LiquidityRouter: 0x00");
     }
-
 }
 

@@ -47,8 +47,8 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         tokenFactory = _tokenFactory;
         launchpadStaking = _launchpadStaking;
         //_setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        defaultTokenMintPrice = 500; //500e18;
-        ownTokenMintPrice = 10000; // 10000e18
+        defaultTokenMintPrice = 500e18; 
+        ownTokenMintPrice = 10000e18; 
     }
 
     function createToken( 
@@ -64,7 +64,7 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         returns(address _tokenAddress)
     {
         address _managementAddress = msg.sender;
-        require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "BaseOperator: Not enough tokens to payment");
+        require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter: Not enough tokens to payment");
 
         _tokenAddress = ITokenFactory(tokenFactory).createToken(_name, _symbol, _mintUnlock, _burnUnlock, viewOperatorAddress());
 
@@ -98,9 +98,9 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         returns(address _tokenAddress)
     {
         address _managementAddress = tx.origin;
-        require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "BaseOperator: Not enough tokens to payment");
-        require(_totalSupply == 0, "Invalid data");
-        require(_decimals == 18, "Invalid data");
+        require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter:  Not enough tokens to payment");
+        require(_totalSupply == 0, "TokenMinter: Invalid data");
+        require(_decimals == 18, "TokenMinter: Invalid data");
 
         _tokenAddress = msg.sender;
         
@@ -110,7 +110,7 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
     }
 
     function setDAORole(address _launchpadDAOAddress)external onlyRole(DISPOSABLE_CALLER){
-        require(_launchpadDAOAddress != address(0), "LiquidityVault: DAO zero address");
+        require(_launchpadDAOAddress != address(0), "TokenMinter: DAO zero address");
         _setupRole(DAO_ROLE, _launchpadDAOAddress);
     }
 

@@ -11,12 +11,12 @@ import "./interfaces/ILaunchpadStaking.sol";
 
 contract LaunchpadDAO is ReentrancyGuard {
 
-    uint public constant PAYMENT_TO_CREATE_PROPOSAL = 1; // 1000e18
-    uint public constant MINIMUM_AMOUNT_TO_CREATE_PROPOSAL = 1; //15000e18;
-    uint public constant MINIMUM_AMOUNT_TO_VOTE = 1; // 3000e18
-    uint public constant TIME_TO_START_VOTING = 1; // 3 days
-    uint public constant VOTING_DURATION = 1; // 7 days
-    uint public constant MINIMUM_QUORUM = 70; // 70%
+    uint public constant PAYMENT_TO_CREATE_PROPOSAL = 1000e18; 
+    uint public constant MINIMUM_AMOUNT_TO_CREATE_PROPOSAL = 15000e18; 
+    uint public constant MINIMUM_AMOUNT_TO_VOTE = 3000e18; 
+    uint public constant TIME_TO_START_VOTING = 3 days; 
+    uint public constant VOTING_DURATION = 7 days; 
+    uint public constant MINIMUM_QUORUM = 70; 
     uint public constant DIV = 100; 
 
     bool public priceProposalExist;
@@ -76,7 +76,15 @@ contract LaunchpadDAO is ReentrancyGuard {
         liquidityVaultAddress = _liquidityVaultAddress;
     }
 
-    function createPriceProposal(uint _priceTypeId, uint _newValue, string calldata _description)external nonReentrant() returns(bytes32 _proposalId){
+    function createPriceProposal(
+        uint _priceTypeId, 
+        uint _newValue, 
+        string calldata _description
+    )
+        external 
+        nonReentrant() 
+        returns(bytes32 _proposalId)
+    {
         address _user = msg.sender;
         (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough staked tokens to create proposal");
@@ -126,7 +134,14 @@ contract LaunchpadDAO is ReentrancyGuard {
         priceProposalExist = true;
     }
 
-    function createAddressProposal(address _newAddress, string calldata _description)external nonReentrant() returns(bytes32 _proposalId){
+    function createAddressProposal(
+        address _newAddress, 
+        string calldata _description
+    )
+        external 
+        nonReentrant() 
+        returns(bytes32 _proposalId)
+    {
         address _user = msg.sender;
         (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough staked tokens to create proposal");
@@ -164,18 +179,22 @@ contract LaunchpadDAO is ReentrancyGuard {
         routerProposalExist = true;
     }
 
-    function votePriceProposal(bytes32 _proposalId, bool _vote)external nonReentrant() returns(uint _forVotes, uint _againstVotes){
+    function votePriceProposal(
+        bytes32 _proposalId, 
+        bool _vote
+    )
+        external 
+        nonReentrant() 
+        returns(uint _forVotes, uint _againstVotes)
+    {
         address _user = msg.sender;
-
         require(block.timestamp >= priceProposals[_proposalId].startTime, "LaunchpadDAO: Too soon to vote");
         require(priceProposals[_proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
-
         if(priceProposals[_proposalId].status == uint(Status.Preparation)){
             priceProposals[_proposalId].status = uint(Status.Voting);
         } else {
             require(priceProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Something went wrong");
         }
-
         (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
         require(voted[_user][_proposalId] == false, "LaunchpadDAO: You are voted already");
@@ -192,7 +211,14 @@ contract LaunchpadDAO is ReentrancyGuard {
         return (priceProposals[_proposalId].forVotes, priceProposals[_proposalId].againstVotes);
     }
 
-    function voteRouterProposal(bytes32 _proposalId, bool _vote)external nonReentrant() returns(uint _forVotes, uint _againstVotes){
+    function voteRouterProposal(
+        bytes32 _proposalId, 
+        bool _vote
+    )
+        external 
+        nonReentrant() 
+        returns(uint _forVotes, uint _againstVotes)
+    {
         address _user = msg.sender;
         require(block.timestamp >= routerProposals[_proposalId].startTime, "LaunchpadDAO: Too soon to vote");
         require(routerProposals[_proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
@@ -297,11 +323,5 @@ contract LaunchpadDAO is ReentrancyGuard {
             _startTime, 
             _endTime
         ));
-    }
-
-    function contractSize(address _address)public view returns(uint size){
-        assembly {
-                size := extcodesize(_address)
-        }
     }
 }

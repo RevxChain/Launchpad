@@ -17,13 +17,13 @@ import "./interfaces/ILiquidityVault.sol";
 contract VestingOperator is AccessControlOperator, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint public constant MINIMUM_LIQUIDITY_SHARE = 2; // 50 %
-    uint public constant MINIMUM_LAUNCHPAD_SHARE = 4; // 25 %
-    uint public constant MINIMUM_TEAMLOCK_DURATION = 100; //64 weeks; 
-    uint public constant MINIMUM_LIQUIDITY_LOCK_DURATION = 150; //90 weeks; 
-    uint public constant MINIMUM_TIME_TO_FUNDRAISE_START = 50; //12 weeks;
-    uint public constant MINIMUM_TIME_TO_VESTING_START = 30; //1 weeks;
-    uint public constant MINIMUM_ETHER_LIQUIDITY = 1e18; //10e18; 
+    uint public constant MINIMUM_LIQUIDITY_SHARE = 2; 
+    uint public constant MINIMUM_LAUNCHPAD_SHARE = 4;
+    uint public constant MINIMUM_TEAMLOCK_DURATION = 64 weeks; 
+    uint public constant MINIMUM_LIQUIDITY_LOCK_DURATION = 90 weeks; 
+    uint public constant MINIMUM_TIME_TO_FUNDRAISE_START = 12 weeks; 
+    uint public constant MINIMUM_TIME_TO_VESTING_START = 1 weeks; 
+    uint public constant MINIMUM_ETHER_LIQUIDITY = 10e18; 
 
     address public immutable liquidityVault;
     address public immutable launchpadToken;
@@ -70,13 +70,13 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         onlyRole(DEFAULT_CALLER) 
         returns(address _vestingAddress)
     {   
-        require(_fundraise != address(0), "Invalid call");
-        require(_cliffTimestamp[uint(Tier.Team)] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "BaseOperator: Too scant team lock duration");
-        require(_cliffTimestamp[uint(Tier.Fourth)] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "BaseOperator: Too soon to start vesting");
-        require(_cliffTimestamp[uint(Tier.Team)] > _cliffTimestamp[uint(Tier.FCFS)], "BaseOperator: Too scant team lock duration");
+        require(_fundraise != address(0), "VestingOperator: Invalid call");
+        require(_cliffTimestamp[uint(Tier.Team)] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
+        require(_cliffTimestamp[uint(Tier.Fourth)] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
+        require(_cliffTimestamp[uint(Tier.Team)] > _cliffTimestamp[uint(Tier.FCFS)], "VestingOperator: Too scant team lock duration");
         
         for(uint i; i < _cliffTimestamp.length - 2; i++){
-            require(_cliffTimestamp[i] > _cliffTimestamp[i + 1], "BaseOperator: Wrong cliff timestamps");
+            require(_cliffTimestamp[i] > _cliffTimestamp[i + 1], "VestingOperator: Wrong cliff timestamps");
         }
 
         _vestingAddress = IScheduleVestingFactory(scheduleVestingFactory).createScheduleVesting(
@@ -101,10 +101,10 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         onlyRole(DEFAULT_CALLER)
         returns(address _vestingAddress)
     {   
-        require(_fundraise != address(0), "Invalid call");
-        require(_cliffTimestamp[25] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "BaseOperator: Too scant team lock duration");
-        require(_cliffTimestamp[20] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "BaseOperator: Too soon to start vesting");
-        require(_cliffTimestamp[25] > _cliffTimestamp[0], "BaseOperator: Too scant team lock duration");
+        require(_fundraise != address(0), "VestingOperator: Invalid call");
+        require(_cliffTimestamp[25] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
+        require(_cliffTimestamp[20] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
+        require(_cliffTimestamp[25] > _cliffTimestamp[0], "VestingOperator: Too scant team lock duration");
 
         uint[6] memory _placeholder;
 
@@ -134,10 +134,10 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         onlyRole(DEFAULT_CALLER)
         returns(address _vestingAddress)
     {   
-        require(_fundraiseAddress != address(0), "Invalid call");
-        require(_vestingTeamStartTimestamp >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "BaseOperator: Too scant team lock duration");
-        require(_vestingStartTimestamp >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "BaseOperator: Too soon to start vesting");
-        require(_vestingTeamStartTimestamp > _vestingStartTimestamp, "BaseOperator: Too scant team lock duration");
+        require(_fundraiseAddress != address(0), "VestingOperator: Invalid call");
+        require(_vestingTeamStartTimestamp >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
+        require(_vestingStartTimestamp >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
+        require(_vestingTeamStartTimestamp > _vestingStartTimestamp, "VestingOperator: Too scant team lock duration");
 
         uint[6] memory _vestingStartTimestamps;
         _vestingStartTimestamps[0] = _vestingStartTimestamp;
@@ -166,13 +166,13 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         onlyRole(DEFAULT_CALLER)
         returns(address _vestingAddress)
     {   
-        require(_fundraiseAddress != address(0), "Invalid call");
-        require(_vestingStartTimestamp[uint(Tier.Team)] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "BaseOperator: Too scant team lock duration");
-        require(_vestingStartTimestamp[uint(Tier.Fourth)] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "BaseOperator: Too soon to start vesting");
-        require(_vestingStartTimestamp[5] > _vestingStartTimestamp[0], "BaseOperator: Too scant team lock duration");
+        require(_fundraiseAddress != address(0), "VestingOperator: Invalid call");
+        require(_vestingStartTimestamp[uint(Tier.Team)] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
+        require(_vestingStartTimestamp[uint(Tier.Fourth)] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
+        require(_vestingStartTimestamp[5] > _vestingStartTimestamp[0], "VestingOperator: Too scant team lock duration");
 
         for(uint i; i < _vestingStartTimestamp.length - 2; i++){
-            require(_vestingStartTimestamp[i] > _vestingStartTimestamp[i + 1], "BaseOperator: Wrong cliff timestamps");
+            require(_vestingStartTimestamp[i] > _vestingStartTimestamp[i + 1], "VestingOperator: Wrong cliff timestamps");
         }
 
         _vestingAddress = ILinearVestingFactory(linearVestingFactory).createLinearVesting(

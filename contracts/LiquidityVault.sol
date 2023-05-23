@@ -58,10 +58,10 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
     }
 
     function addLiquidity(address _token, bytes calldata _data)external {
-        require(liquidityData[_token].managementAddress != address(0), "Invalid token");
-        require(liquidityData[_token].pairAddress == address(0), "Invalid token");
-        require(liquidityData[_token].lpTokensAmount == 0, "Already provided");
-        require(block.timestamp >= liquidityData[_token].initiationTimestamp, "Too soon");
+        require(liquidityData[_token].managementAddress != address(0), "LiquidityVault: Invalid token");
+        require(liquidityData[_token].pairAddress == address(0), "LiquidityVault: Invalid token");
+        require(liquidityData[_token].lpTokensAmount == 0, "LiquidityVault: Already provided");
+        require(block.timestamp >= liquidityData[_token].initiationTimestamp, "LiquidityVault: Too soon");
         
         IERC20(_token).safeTransfer(liquidityRouterAddress, liquidityData[_token].initializedTokensAmount);
 
@@ -81,10 +81,10 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
 
     function removeLiquidity(address _token, uint _amount)external {
         address _managementAddress = msg.sender;
-        require(liquidityData[_token].managementAddress == _managementAddress, "You are not a management");
-        require(liquidityData[_token].lpTokensAmount >= _amount, "Not enough lp tokens amount");
-        require(block.timestamp >= liquidityData[_token].lockTimestamp, "Too soon");
-        require(liquidityData[_token].lockTimestamp != 0, "Liquidity burnt");
+        require(liquidityData[_token].managementAddress == _managementAddress, "LiquidityVault: You are not a management");
+        require(liquidityData[_token].lpTokensAmount >= _amount, "LiquidityVault: Not enough lp tokens amount");
+        require(block.timestamp >= liquidityData[_token].lockTimestamp, "LiquidityVault: Too soon");
+        require(liquidityData[_token].lockTimestamp != 0, "LiquidityVault: Liquidity burnt");
 
         IERC20(liquidityData[_token].pairAddress).safeTransfer(_managementAddress, _amount);
 

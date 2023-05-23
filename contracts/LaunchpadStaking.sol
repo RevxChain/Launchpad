@@ -14,16 +14,16 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
     uint public rewardPool;
     uint public lastUpdateRewardPool;
 
-    uint public constant BASE_STAKING_RATE = 100000000000000000; // 10% + 1e16 100000000000000000
-    uint public constant MINIMUM_LOCK_DURATION = 1 ; // 26 weeks
-    uint public constant ONE_YEAR_DURATION = 1 hours; // 52 weeks
+    uint public constant BASE_STAKING_RATE = 100000000000000000; 
+    uint public constant MINIMUM_LOCK_DURATION = 26 weeks;
+    uint public constant ONE_YEAR_DURATION = 52 weeks; 
     uint public constant ACCURACY = 1e18;
-    uint public constant INITIALIZATION_VALUE = 10; // 10000
-    uint public constant MINIMUM_DEPOSIT_AMOUNT = 1; //100e18;
-    uint public constant FIRST_TIER_REQUIREMENT = 500; //500e18;
-    uint public constant SECOND_TIER_REQUIREMENT =  3000; //3000e18;
-    uint public constant THIRD_TIER_REQUIREMENT = 10000; //10000e18;
-    uint public constant FOURTH_TIER_REQUIREMENT = 20000; //20000e18;
+    uint public constant INITIALIZATION_VALUE = 10000; 
+    uint public constant MINIMUM_DEPOSIT_AMOUNT = 100e18; 
+    uint public constant FIRST_TIER_REQUIREMENT = 500e18; 
+    uint public constant SECOND_TIER_REQUIREMENT =  3000e18; 
+    uint public constant THIRD_TIER_REQUIREMENT = 10000e18; 
+    uint public constant FOURTH_TIER_REQUIREMENT = 20000e18; 
 
     uint[5] public totalUsers;
 
@@ -51,20 +51,15 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         require(_underlyingAmount >= MINIMUM_DEPOSIT_AMOUNT, "LaunchpadStaking: Not enough tokens to deposit");
         require(IERC20(launchTokenAddress).balanceOf(_user) >= _underlyingAmount, "LaunchpadStaking: Not enough tokens to deposit");
         require(_lockDuration >= MINIMUM_LOCK_DURATION, "LaunchpadStaking: Not enough lock duration");
-
         uint _beforeUserTier = userInfo[_user].tier;
-
         updateRewardPool();
         uint userShare = calculateNewRewardPoolInternal(_underlyingAmount) - totalSupply();
         _mint(_user, userShare);
         rewardPool += _underlyingAmount;
-
         userInfo[_user].stakedAmount += _underlyingAmount;
         userInfo[_user].tier = calculateTierInternal(userInfo[_user].stakedAmount);
         userInfo[_user].unlockTime = block.timestamp + _lockDuration;
-
         calculaterTotalUsersInternal(_user, _beforeUserTier);
-
         IERC20(launchTokenAddress).safeTransferFrom(_user, address(this), _underlyingAmount);  
     }
 
@@ -73,20 +68,15 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         require(block.timestamp >= userInfo[_user].unlockTime, "LaunchpadStaking: Too soon to withdraw");
         require(balanceOf(_user) >= _sTokenAmount, "LaunchpadStaking: Not enough sTokens");
         require(_sTokenAmount >= ACCURACY, "LaunchpadStaking: Invalid sToken amount");
-
         uint _beforeUserTier = userInfo[_user].tier;
-
         updateRewardPool();
         userInfo[_user].stakedAmount = balanceOf(_user) * rewardPool / totalSupply();
         uint _underlyingAmount = _sTokenAmount * rewardPool / totalSupply();
         _burn(_user, _sTokenAmount);
         rewardPool -= _underlyingAmount;
-
         userInfo[_user].stakedAmount -= _underlyingAmount;
         userInfo[_user].tier = calculateTierInternal(userInfo[_user].stakedAmount);
-
         calculaterTotalUsersInternal(_user, _beforeUserTier);
-
         IERC20(launchTokenAddress).safeTransfer(_user, _underlyingAmount);
     }
 

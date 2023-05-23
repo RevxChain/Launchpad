@@ -73,7 +73,7 @@ contract LinearVesting is AccessControl{
 
             userData[_user].totalAllocation = _amount;
         }
-        require(userData[_user].totalAllocation > userData[_user].claimedTokens, "All tokens claimed already");
+        require(userData[_user].totalAllocation > userData[_user].claimedTokens, "Vesting: All tokens claimed already");
         require(block.timestamp > userData[_user].lastClaimTimestamp, "Vesting: Too soon to claim");
         uint _tokensToClaim;
         uint _elapsedTime;
@@ -84,7 +84,7 @@ contract LinearVesting is AccessControl{
             _tokensToClaim = _elapsedTime * userData[_user].totalAllocation / vestingDuration;
         }
         userData[_user].claimedTokens += _tokensToClaim;
-        require(userData[_user].totalAllocation >= userData[_user].claimedTokens, "All tokens claimed already");
+        require(userData[_user].totalAllocation >= userData[_user].claimedTokens, "Vesting: All tokens claimed already");
         IERC20(underlyingTokenAddress).safeTransfer(_user, _tokensToClaim);
     }
 }
