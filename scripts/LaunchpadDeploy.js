@@ -15,10 +15,6 @@ async function main() {
 
   const launchpadTokenAddress = token.address;
 
-  //const tokenSupply = await token.totalSupply(); to test {
-  //console.log(tokenSupply);
-  //console.log(deployerAddress); }
-
   const TokenFactory = await ethers.getContractFactory("TokenFactory", signer);
   const tokenFactory = await TokenFactory.deploy();
   await tokenFactory.deployed();
@@ -106,32 +102,7 @@ async function main() {
   vestingOperator.setupOperator(baseOperator.address);
   tokenMinter.setDAORole(launchpadDAO.address);
   
-  
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 } 
-
-
-
 
 main().catch((error) => {
   console.error(error);
