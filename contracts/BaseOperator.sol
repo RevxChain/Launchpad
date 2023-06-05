@@ -163,12 +163,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         if(_stablecoinAddress == USDCAddress){
             tokenData[_token].fundsRaised[0] += _underlyingAmount;
         }
-        if(_stablecoinAddress == USDTAddress){
-            tokenData[_token].fundsRaised[1] += _underlyingAmount;
-        } else {
-            tokenData[_token].fundsRaised[2] += _underlyingAmount;
-        }
-
+        _stablecoinAddress == USDTAddress ? tokenData[_token].fundsRaised[1] += _underlyingAmount : tokenData[_token].fundsRaised[2] += _underlyingAmount;
     }
 
     function cancelFundraise(address _token)external onlyRole(DEFAULT_ADMIN_ROLE){
