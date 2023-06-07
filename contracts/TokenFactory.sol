@@ -17,7 +17,7 @@ contract ERC20Token is ERC20, ERC20Burnable, AccessControl {
     bytes32 private constant OPERATOR_ROLE = keccak256(abi.encode("OPERATOR_ROLE"));
 
     modifier burnLocked(){
-        require(burnUnlock == 1, "ERC20: Not allow to burn");
+        require(burnUnlock == 1, "ERC20Token: Not allow to burn");
         _;
     }
 
@@ -45,7 +45,7 @@ contract ERC20Token is ERC20, ERC20Burnable, AccessControl {
         uint _liquidityAmount,
         address _minter
     ) external onlyRole(OPERATOR_ROLE){
-        require(initializeLock == 0, "ERC20: Initialized");
+        require(initializeLock == 0, "ERC20Token: Initialized");
         _mint(operatorAddress, _vestingAmount);
         _mint(_liquidityVault, _liquidityAmount);
         initializeLock = 1;
