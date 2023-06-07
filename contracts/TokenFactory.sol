@@ -79,7 +79,7 @@ contract TokenFactory is AccessControlOperator {
     )   
         external 
         onlyRole(DEFAULT_CALLER) 
-        returns(address _address)
+        returns(address _tokenAddress)
     {
         ERC20Token _token = new ERC20Token(
             _name, 
@@ -89,7 +89,7 @@ contract TokenFactory is AccessControlOperator {
             _burnUnlock, 
             viewOperatorAddress()
         );
-        _address = address(_token); 
+        _tokenAddress = address(_token); 
     }
 
 }
