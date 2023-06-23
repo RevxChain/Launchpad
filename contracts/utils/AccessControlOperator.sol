@@ -12,7 +12,7 @@ contract AccessControlOperator is IAccessControlOperator, AccessControl {
     bytes32 public constant DEFAULT_CALLER = keccak256(abi.encode("DEFAULT_CALLER"));
 
     constructor(){
-        _setupRole(DISPOSABLE_CALLER, msg.sender); // tx.origin
+        _setupRole(DISPOSABLE_CALLER, tx.origin); 
     }
 
     function viewOperatorAddress()public view returns(address){

@@ -89,34 +89,6 @@ describe("Launchpad", function () {
         liquidityVault.setDAORole(launchpadDAO.address);
         vestingOperator.setupOperator(baseOperator.address);
         tokenMinter.setDAORole(launchpadDAO.address);
-        //----------------------------------------
-
-
-        /*
-      const mintValue = 500;
-  
-      await token.connect(user).approve(tokenMinter.address, mintValue);
-  
-      await tokenMinter.connect(user).createToken(
-          "fuck", 
-          "fuck u",
-          0,
-          0,
-          1999,
-          false
-      );
-  
-      const newTokenAddress = await tokenMinter.allNotSupportedTokens(0);
-      console.log('Minted token address = ', newTokenAddress);
-  
-      const tokenMinterContract = await ethers.getContractAt("ERC20Token", newTokenAddress);
-  
-  
-      const tokenMinterTokenBalance = await token.balanceOf(tokenMinter.address);
-      console.log('Token minter token balance = ', tokenMinterTokenBalance);
-  
-      const newTokenUserBalance = await tokenMinterContract.balanceOf(user.address);
-      console.log('newTokenUserBalance = ', newTokenUserBalance);*/
 
         return {
             owner, userOne, userTwo, userThree, launchpadToken, tokenFactory,
@@ -132,6 +104,5 @@ describe("Launchpad", function () {
 
             expect(await launchpadToken.balanceOf(owner.address)).to.equal(amountToMint);
         });
-
     });
 })

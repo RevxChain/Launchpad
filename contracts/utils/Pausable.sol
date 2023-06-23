@@ -5,10 +5,8 @@ contract Pausable {
 
     bool private pause;
 
-    error Paused();
-
     modifier paused(){
-        require(pause == false, "Pausable: Paused");
+        require(pause == false, "Pausable: paused");
         _;
     }
 
