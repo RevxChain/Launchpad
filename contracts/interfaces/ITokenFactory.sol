@@ -22,6 +22,4 @@ interface ITokenFactory {
         address _operatorAddress
     ) external returns(address _address);
 
-    
-
 } 

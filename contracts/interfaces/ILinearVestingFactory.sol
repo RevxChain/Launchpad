@@ -12,7 +12,6 @@ interface ILinearVesting {
     function claim(address _user)external;
 }  
 
-
 interface ILinearVestingFactory {
 
     function createLinearVesting(

@@ -43,6 +43,4 @@ interface IVestingOperator {
         uint[6] memory _vestingStartTimestamp
     ) external returns(address _vestingAddress);
 
-    
-
 }

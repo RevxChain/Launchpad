@@ -3,7 +3,11 @@ pragma solidity ^0.8.17;
 
 interface IOwnTokenSample {
 
-    function mintCallReceived()external view returns(string memory _name, string memory _symbol, uint _totalSupply, uint _decimals);
-
+    function mintCallReceived()external view returns(
+        string memory _name, 
+        string memory _symbol, 
+        uint _totalSupply, 
+        uint _decimals
+    );
 
 }
