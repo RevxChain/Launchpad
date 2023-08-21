@@ -66,8 +66,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         address _liquidityVault,
         address _launchpadStaking,
         address _tokenMinter
-    )
-    {
+    ) {
         launchpadToken = _launchpadToken;
         fundraiseFactory = _fundraiseFactory;
         vestingOperator = _vestingOperator;
@@ -77,13 +76,13 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         _setupRole(TOKEN_MINTER, _tokenMinter);
     }
 
-    function confirmTokenToFundraise(address _token, address _minter)external onlyRole(DEFAULT_ADMIN_ROLE){
+    function confirmTokenToFundraise(address _token, address _minter) external onlyRole(DEFAULT_ADMIN_ROLE) {
         statusVerificationInternal(_token, uint(Status.Audit));
         statusShiftInternal(_token, uint(Status.Confirmed));
         tokenData[_token].minterAddress = _minter;
     }
 
-    function rejectTokenToFundraise(address _token)external onlyRole(DEFAULT_ADMIN_ROLE){
+    function rejectTokenToFundraise(address _token) external onlyRole(DEFAULT_ADMIN_ROLE) {
         statusVerificationInternal(_token, uint(Status.Audit));
         statusShiftInternal(_token, uint(Status.Rejected));
     }
@@ -149,11 +148,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         address _token, 
         uint _amount, 
         address _stablecoinAddress
-    )
-        external 
-        nonReentrant() 
-        paused()
-    {
+    ) external nonReentrant() paused() {
         address _user = msg.sender;
         statusVerificationInternal(_token, uint(Status.Fundraise));
         stablecoinAddressVerificationInternal(_stablecoinAddress);
@@ -166,13 +161,13 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         _stablecoinAddress == USDTAddress ? tokenData[_token].fundsRaised[1] += _underlyingAmount : tokenData[_token].fundsRaised[2] += _underlyingAmount;
     }
 
-    function cancelFundraise(address _token)external onlyRole(DEFAULT_ADMIN_ROLE){
+    function cancelFundraise(address _token) external onlyRole(DEFAULT_ADMIN_ROLE) {
         statusVerificationInternal(_token, uint(Status.Fundraise));
         require(block.timestamp >= tokenData[_token].fundraiseStart + MINIMUM_TIME_TO_CANCEL_FUNDRAISE, "BaseOperator: Too soon to cancel");
         statusShiftInternal(_token, uint(Status.Cancellation));
     } 
 
-    function refund(address _token, address _stablecoinAddress)external nonReentrant(){
+    function refund(address _token, address _stablecoinAddress) external nonReentrant() {
         address _user = msg.sender;
         require(refunded[_user][_token] == false, "BaseOperator: Refunded already");
         statusVerificationInternal(_token, uint(Status.Cancellation));
@@ -188,16 +183,11 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
     function createSimpleScheduleVesting( 
         address _token,
         uint[6] memory _cliffTimestamp
-    )
-        external 
-        nonReentrant()
-        paused()
-        returns(address _vestingAddress)
-    {   
+    ) external nonReentrant() paused() returns(address vestingAddress) {   
         managementVerificationInternal(_token);
         statusVerificationInternal(_token, uint(Status.Fundraise));
 
-        _vestingAddress = IVestingOperator(vestingOperator).createSimpleScheduleVesting( 
+        vestingAddress = IVestingOperator(vestingOperator).createSimpleScheduleVesting( 
             tokenData[_token].managementAddress,
             _token,
             tokenData[_token].fundraiseAddress,
@@ -206,23 +196,18 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
             tokenData[_token].amounts[uint(Amount.Manage)]
         );
 
-        createVestingInternal(_token, _vestingAddress);
+        createVestingInternal(_token, vestingAddress);
     }
 
     function createScheduleVesting( 
         address _token,
         uint[30] memory _cliffTimestamp, 
         uint[30] memory _cliffAmount
-    )
-        external 
-        nonReentrant()
-        paused()
-        returns(address _vestingAddress)
-    {
+    ) external nonReentrant() paused() returns(address vestingAddress) {
         managementVerificationInternal(_token);
         statusVerificationInternal(_token, uint(Status.Fundraise));
 
-        _vestingAddress = IVestingOperator(vestingOperator).createScheduleVesting(  
+        vestingAddress = IVestingOperator(vestingOperator).createScheduleVesting(  
             tokenData[_token].managementAddress,
             _token,
             tokenData[_token].fundraiseAddress,
@@ -232,7 +217,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
             tokenData[_token].amounts[uint(Amount.Manage)]
         );
 
-        createVestingInternal(_token, _vestingAddress);
+        createVestingInternal(_token, vestingAddress);
     }
 
     function createLinearVesting( 
@@ -240,16 +225,11 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         uint _vestingStartTimestamp,
         uint _vestingTeamStartTimestamp,
         uint _vestingDuration
-    )
-        external 
-        nonReentrant()
-        paused()
-        returns(address _vestingAddress)
-    {
+    ) external nonReentrant() paused() returns(address vestingAddress) {
         managementVerificationInternal(_token);
         statusVerificationInternal(_token, uint(Status.Fundraise));
 
-        _vestingAddress = IVestingOperator(vestingOperator).createLinearVesting(  
+        vestingAddress = IVestingOperator(vestingOperator).createLinearVesting(  
             _token,  
             tokenData[_token].managementAddress, 
             tokenData[_token].fundraiseAddress, 
@@ -260,23 +240,18 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
             _vestingDuration
         );
 
-        createVestingInternal(_token, _vestingAddress);
+        createVestingInternal(_token, vestingAddress);
     }
 
     function createCliffLinearVesting( 
         address _token,
         uint _vestingDuration,
         uint[6] memory _vestingStartTimestamp
-    )
-        external 
-        nonReentrant()
-        paused()
-        returns(address _vestingAddress)
-    {
+    ) external nonReentrant() paused() returns(address vestingAddress) {
         managementVerificationInternal(_token);
         statusVerificationInternal(_token, uint(Status.Fundraise));
 
-        _vestingAddress = IVestingOperator(vestingOperator).createCliffLinearVesting(  
+        vestingAddress = IVestingOperator(vestingOperator).createCliffLinearVesting(  
             _token,  
             tokenData[_token].managementAddress, 
             tokenData[_token].fundraiseAddress, 
@@ -286,10 +261,10 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
             _vestingStartTimestamp
         );
 
-        createVestingInternal(_token, _vestingAddress);
+        createVestingInternal(_token, vestingAddress);
     }
 
-    function changeOver()external onlyRole(DEFAULT_ADMIN_ROLE){
+    function changeOver() external onlyRole(DEFAULT_ADMIN_ROLE) {
         _changeOver();
     }
 
@@ -298,10 +273,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         string calldata _name, 
         string calldata _symbol, 
         address _managementAddress
-    )
-        external 
-        onlyRole(TOKEN_MINTER)
-    {
+    ) external onlyRole(TOKEN_MINTER) {
         tokenData[_token].name = _name;
         tokenData[_token].symbol = _symbol;
         tokenData[_token].managementAddress = _managementAddress;
@@ -309,38 +281,18 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         allSupportedTokens.push(_token);
     }
 
-    function statusShiftInternal(address _token, uint _status)internal { 
+    function statusShiftInternal(address _token, uint _status) internal { 
         tokenData[_token].status = _status;
     }
-
-    function ratioVerificationInternal(uint _amount, uint _minimum, uint _totalAmount)internal pure {
-        require(_amount * _minimum >= _totalAmount, "BaseOperator: Wrong tokens amounts ratio");
-    }
-            
-    function statusVerificationInternal(address _token, uint _status)internal view {
-        require(tokenData[_token].status == _status, "BaseOperator: Invalid status");
-    }
-
-    function balanceVerificationInternal(address _token, address _user, uint _kink)internal view {
-        require(IERC20(_token).balanceOf(_user) >= _kink, "BaseOperator: Not enough tokens");
-    }
-
-    function stablecoinAddressVerificationInternal(address _stablecoinAddress)internal pure {
-        require(_stablecoinAddress == USDCAddress || _stablecoinAddress == USDTAddress || _stablecoinAddress == BUSDAddress, "BaseOperator: Wrong stablecoin");
-    }
-
-    function managementVerificationInternal(address _token)internal view {   
-        require(msg.sender == tokenData[_token].managementAddress, "BaseOperator: You are not a management");
-    }
     
-    function paymentInternal(address _managementAddress)internal {
+    function paymentInternal(address _managementAddress) internal {
         uint _halfPayment = DEFAULT_FUNDRAISE_PRICE / 2;
         IERC20(launchpadToken).safeTransferFrom(_managementAddress, launchpadStaking, _halfPayment);
         ILaunchpadToken(launchpadToken).burnFrom(_managementAddress, _halfPayment);
         ILaunchpadStaking(launchpadStaking)._addPaymentTokens(_halfPayment);
     }
 
-    function createVestingInternal(address _token, address _vestingAddress)internal {
+    function createVestingInternal(address _token, address _vestingAddress) internal {
         tokenData[_token].vestingAddress = _vestingAddress;
         uint _amountToVesting = tokenData[_token].amounts[uint(Amount.Manage)] + tokenData[_token].amounts[uint(Amount.Launch)];
         IERC20(_token).safeTransfer(_vestingAddress, _amountToVesting);
@@ -349,4 +301,24 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         IERC20(USDTAddress).safeTransfer(tokenData[_token].managementAddress, tokenData[_token].fundsRaised[1]);
         IERC20(BUSDAddress).safeTransfer(tokenData[_token].managementAddress, tokenData[_token].fundsRaised[2]);
     } 
+    
+    function statusVerificationInternal(address _token, uint _status) internal view {
+        require(tokenData[_token].status == _status, "BaseOperator: Invalid status");
+    }
+
+    function balanceVerificationInternal(address _token, address _user, uint _kink) internal view {
+        require(IERC20(_token).balanceOf(_user) >= _kink, "BaseOperator: Not enough tokens");
+    }
+
+    function managementVerificationInternal(address _token) internal view {   
+        require(msg.sender == tokenData[_token].managementAddress, "BaseOperator: You are not a management");
+    }
+
+    function stablecoinAddressVerificationInternal(address _stablecoinAddress) internal pure {
+        require(_stablecoinAddress == USDCAddress || _stablecoinAddress == USDTAddress || _stablecoinAddress == BUSDAddress, "BaseOperator: Wrong stablecoin");
+    }
+
+    function ratioVerificationInternal(uint _amount, uint _minimum, uint _totalAmount) internal pure {
+        require(_amount * _minimum >= _totalAmount, "BaseOperator: Wrong tokens amounts ratio");
+    }
 }

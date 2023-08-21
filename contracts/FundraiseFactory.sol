@@ -52,8 +52,7 @@ contract Fundraise is AccessControl, ReentrancyGuard{
         address _managementAddress, 
         address _operatorAddress, 
         address _launchpadStakingAddress
-    )
-    {
+    ) {
         totalAmount = _totalAmount;
         oneTokenPrice = _oneTokenPrice;
         fundraiseStart = _fundraiseStart;
@@ -81,11 +80,7 @@ contract Fundraise is AccessControl, ReentrancyGuard{
         address _user, 
         uint _amount, 
         address _stablecoinAddress
-    )
-        external 
-        onlyRole(DEFAULT_ADMIN_ROLE) 
-        returns(uint _underlyingAmount)
-    {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) returns(uint underlyingAmount) {
         require(participants[_user].totalAllocation >= participants[_user].spentAllocation);
         require(_amount >= ACCURACY, "Fundraise: invalid amount");
         uint _actualTierRound = calculateActualRoundInternal(fundraiseStart, fundraiseDuration, fundraiseRoundDuration);
@@ -117,7 +112,7 @@ contract Fundraise is AccessControl, ReentrancyGuard{
             _decimals = ACCURACY;
         }
 
-        _underlyingAmount = _amount * oneTokenPrice[_actualTierRound] / _decimals; 
+        underlyingAmount = _amount * oneTokenPrice[_actualTierRound] / _decimals; 
         if(participants[_user].totalAllocation == 0){
             participants[_user].tier = _tier;
             participants[_user].totalAllocation = actualAllocation;
@@ -132,11 +127,7 @@ contract Fundraise is AccessControl, ReentrancyGuard{
         uint _fundraiseStart, 
         uint _fundraiseDuration, 
         uint _fundraiseRoundDuration
-    )
-        internal 
-        view 
-        returns(uint)
-    {
+    ) internal view returns(uint) {
         require(_fundraiseStart + _fundraiseDuration >= block.timestamp, "Fundraise: fundraise is closed");
         require(block.timestamp >= _fundraiseStart, "Fundraise: fundraise is not opened yet");
         if(block.timestamp >= _fundraiseStart + _fundraiseRoundDuration * uint(Tier.Fourth)){ 
@@ -158,17 +149,16 @@ contract Fundraise is AccessControl, ReentrancyGuard{
         }
     }
 
-    function _userData(address _user)external view returns(uint _tier, uint _totalAllocation, uint _spentAllocation){
+    function _userData(address _user) external view returns(uint tier, uint totalAllocation, uint spentAllocation) {
         return (participants[_user].tier, participants[_user].totalAllocation, participants[_user].spentAllocation);
     }
-
 }
 
 contract FundraiseFactory is AccessControlOperator {
 
     address public immutable launchpadStakingAddress;
 
-    constructor(address _launchpadStakingAddress){
+    constructor(address _launchpadStakingAddress) {
         launchpadStakingAddress = _launchpadStakingAddress;
     }
 
@@ -178,11 +168,7 @@ contract FundraiseFactory is AccessControlOperator {
         uint[5] memory _oneTokenPrice, 
         uint _fundraiseStart, 
         address _managementAddress
-    ) 
-        external 
-        onlyRole(DEFAULT_CALLER)
-        returns(address _address)
-    {
+    ) external onlyRole(DEFAULT_CALLER) returns(address fundraiseAddress) {
         require(_token != address(0), "FundraiseFactory: Zero address");
 
         Fundraise _fundraise = new Fundraise(
@@ -193,6 +179,6 @@ contract FundraiseFactory is AccessControlOperator {
             viewOperatorAddress(), 
             launchpadStakingAddress
         );
-        _address = address(_fundraise); 
+        fundraiseAddress = address(_fundraise); 
     }
 }

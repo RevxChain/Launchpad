@@ -40,11 +40,7 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
         uint _tokensAmount, 
         uint _fundraiseStart,
         uint _liquidityLockDuration
-    )
-        external 
-        payable 
-        onlyRole(DEFAULT_CALLER)
-    {
+    ) external payable onlyRole(DEFAULT_CALLER) {
         uint _value = msg.value;
         liquidityData[_token].managementAddress = _managementAddress;
         liquidityData[_token].initializedTokensAmount = _tokensAmount;
@@ -57,7 +53,7 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
         
     }
 
-    function addLiquidity(address _token, bytes calldata _data)external {
+    function addLiquidity(address _token, bytes calldata _data) external {
         require(liquidityData[_token].managementAddress != address(0), "LiquidityVault: Invalid token");
         require(liquidityData[_token].pairAddress == address(0), "LiquidityVault: Invalid token");
         require(liquidityData[_token].lpTokensAmount == 0, "LiquidityVault: Already provided");
@@ -79,7 +75,7 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
 
     }
 
-    function removeLiquidity(address _token, uint _amount)external {
+    function removeLiquidity(address _token, uint _amount) external {
         address _managementAddress = msg.sender;
         require(liquidityData[_token].managementAddress == _managementAddress, "LiquidityVault: You are not a management");
         require(liquidityData[_token].lpTokensAmount >= _amount, "LiquidityVault: Not enough lp tokens amount");
@@ -92,12 +88,12 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
 
     }
 
-    function setDAORole(address _launchpadDAOAddress)external onlyRole(DISPOSABLE_CALLER){
+    function setDAORole(address _launchpadDAOAddress) external onlyRole(DISPOSABLE_CALLER) {
         require(_launchpadDAOAddress != address(0), "LiquidityVault: DAO zero address");
         _setupRole(DAO_ROLE, _launchpadDAOAddress);
     }
 
-    function updateRouterAddress(address _newRouterAddress)external onlyRole(DAO_ROLE){
+    function updateRouterAddress(address _newRouterAddress) external onlyRole(DAO_ROLE) {
         liquidityRouterAddress = _newRouterAddress;
     }
 }

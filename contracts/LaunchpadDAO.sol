@@ -68,8 +68,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         address _launchpadStakingAddress, 
         address _tokenMinterAddress, 
         address _liquidityVaultAddress
-    )
-    {
+    ) {
         launchpadTokenAddress = _launchpadTokenAddress;
         launchpadStakingAddress = _launchpadStakingAddress;
         tokenMinterAddress = _tokenMinterAddress;
@@ -80,11 +79,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         uint _priceTypeId, 
         uint _newValue, 
         string calldata _description
-    )
-        external 
-        nonReentrant() 
-        returns(bytes32 _proposalId)
-    {
+    ) external nonReentrant() returns(bytes32 proposalId) {
         address _user = msg.sender;
         (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough staked tokens to create proposal");
@@ -105,7 +100,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         uint _startTime = block.timestamp + TIME_TO_START_VOTING;
         uint _endTime = _startTime + VOTING_DURATION;
 
-        _proposalId = calculatePriceProposalId(
+        proposalId = calculatePriceProposalId(
             _priceType, 
             _baseValue, 
             _newValue, 
@@ -115,8 +110,8 @@ contract LaunchpadDAO is ReentrancyGuard {
             _endTime 
         );
 
-        priceProposals[_proposalId] = PriceProposal({
-            proposalId: _proposalId,
+        priceProposals[proposalId] = PriceProposal({
+            proposalId: proposalId,
             priceType: _priceType,
             priceTypeId: _priceTypeId,
             baseValue: _baseValue,
@@ -137,11 +132,7 @@ contract LaunchpadDAO is ReentrancyGuard {
     function createAddressProposal(
         address _newAddress, 
         string calldata _description
-    )
-        external 
-        nonReentrant() 
-        returns(bytes32 _proposalId)
-    {
+    ) external nonReentrant() returns(bytes32 proposalId) {
         address _user = msg.sender;
         (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough staked tokens to create proposal");
@@ -153,7 +144,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         uint _startTime = block.timestamp + TIME_TO_START_VOTING;
         uint _endTime = _startTime + VOTING_DURATION;
 
-        _proposalId = calculateRouterProposalId( 
+        proposalId = calculateRouterProposalId( 
             _baseAddress, 
             _newAddress, 
             _description, 
@@ -162,8 +153,8 @@ contract LaunchpadDAO is ReentrancyGuard {
             _endTime 
         );
 
-        routerProposals[_proposalId] = RouterProposal({
-            proposalId: _proposalId,
+        routerProposals[proposalId] = RouterProposal({
+            proposalId: proposalId,
             baseAddress: _baseAddress,
             newAddress: _newAddress,
             description: _description,
@@ -182,11 +173,7 @@ contract LaunchpadDAO is ReentrancyGuard {
     function votePriceProposal(
         bytes32 _proposalId, 
         bool _vote
-    )
-        external 
-        nonReentrant() 
-        returns(uint _forVotes, uint _againstVotes)
-    {
+    ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
         address _user = msg.sender;
         require(block.timestamp >= priceProposals[_proposalId].startTime, "LaunchpadDAO: Too soon to vote");
         require(priceProposals[_proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
@@ -214,11 +201,7 @@ contract LaunchpadDAO is ReentrancyGuard {
     function voteRouterProposal(
         bytes32 _proposalId, 
         bool _vote
-    )
-        external 
-        nonReentrant() 
-        returns(uint _forVotes, uint _againstVotes)
-    {
+    ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
         address _user = msg.sender;
         require(block.timestamp >= routerProposals[_proposalId].startTime, "LaunchpadDAO: Too soon to vote");
         require(routerProposals[_proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
@@ -241,7 +224,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         return (routerProposals[_proposalId].forVotes, routerProposals[_proposalId].againstVotes);
     }
 
-    function executePriceProposal(bytes32 _proposalId)external nonReentrant() returns(bool _result){
+    function executePriceProposal(bytes32 _proposalId) external nonReentrant() returns(bool result) {
         require(block.timestamp >= priceProposals[_proposalId].endTime, "LaunchpadDAO: Proposal has not ended");
         require(priceProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Voting is processing");
         require(priceProposalExist == true, "LaunchpadDAO: Price proposal is not exist");
@@ -260,7 +243,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         }
     }
 
-    function executeRouterProposal(bytes32 _proposalId)external nonReentrant() returns(bool _result){
+    function executeRouterProposal(bytes32 _proposalId) external nonReentrant() returns(bool result) {
         require(block.timestamp >= routerProposals[_proposalId].endTime, "LaunchpadDAO: Proposal has not ended");
         require(routerProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Voting is processing");
         require(routerProposalExist == true, "LaunchpadDAO: Router proposal is not exist");
@@ -287,11 +270,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         uint _proposeTime,
         uint _startTime,
         uint _endTime
-    )
-        public 
-        pure 
-        returns(bytes32 _proposalId)
-    {
+    ) public pure returns(bytes32 _proposalId) {
         return keccak256(abi.encode(
             keccak256(bytes(_priceType)), 
             _baseValue, 
@@ -310,11 +289,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         uint _proposeTime,
         uint _startTime,
         uint _endTime
-    )
-        public 
-        pure 
-        returns(bytes32 _proposalId)
-    {
+    ) public pure returns(bytes32 proposalId) {
         return keccak256(abi.encode( 
             _baseAddress, 
             _newAddress, 
@@ -323,5 +298,11 @@ contract LaunchpadDAO is ReentrancyGuard {
             _startTime, 
             _endTime
         ));
+    }
+
+    function contractSize(address _address) internal view returns(uint size) {
+        assembly {
+            size := extcodesize(_address)
+        }
     }
 }

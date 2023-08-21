@@ -41,8 +41,7 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         address _launchpadToken,  
         address _tokenFactory, 
         address _launchpadStaking
-    )
-    {
+    ) {
         launchpadToken = _launchpadToken;
         tokenFactory = _tokenFactory;
         launchpadStaking = _launchpadStaking;
@@ -58,30 +57,26 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         uint _burnUnlock,
         uint _initialSupply,
         bool _toAudit
-    )
-        external 
-        nonReentrant()
-        returns(address _tokenAddress)
-    {
+    ) external nonReentrant() returns(address tokenAddress) {
         address _managementAddress = msg.sender;
         require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter: Not enough tokens to payment");
 
-        _tokenAddress = ITokenFactory(tokenFactory).createToken(_name, _symbol, _mintUnlock, _burnUnlock, viewOperatorAddress());
+        tokenAddress = ITokenFactory(tokenFactory).createToken(_name, _symbol, _mintUnlock, _burnUnlock, viewOperatorAddress());
 
         if(_toAudit == false){
-            IERC20Token(_tokenAddress).initialize(
+            IERC20Token(tokenAddress).initialize(
                 _managementAddress,
                 0,
                 _initialSupply,
                 _managementAddress
             );
 
-            tokenData[_tokenAddress].name = _name;
-            tokenData[_tokenAddress].symbol = _symbol;
-            tokenData[_tokenAddress].managementAddress = _managementAddress;
-            allNotSupportedTokens.push(_tokenAddress);
+            tokenData[tokenAddress].name = _name;
+            tokenData[tokenAddress].symbol = _symbol;
+            tokenData[tokenAddress].managementAddress = _managementAddress;
+            allNotSupportedTokens.push(tokenAddress);
         } else {
-            IBaseOperator(viewOperatorAddress()).tokenToAuditExternal(_tokenAddress, _name, _symbol, _managementAddress);
+            IBaseOperator(viewOperatorAddress()).tokenToAuditExternal(tokenAddress, _name, _symbol, _managementAddress);
         }
         
         ILaunchpadToken(launchpadToken).burnFrom(_managementAddress, defaultTokenMintPrice);
@@ -92,36 +87,31 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         string calldata _symbol, 
         uint _totalSupply, 
         uint _decimals
-    )
-        external 
-        nonReentrant() 
-        returns(address _tokenAddress)
-    {
+    ) external nonReentrant() returns(address tokenAddress) {
         address _managementAddress = tx.origin;
         require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter:  Not enough tokens to payment");
         require(_totalSupply == 0, "TokenMinter: Invalid data");
         require(_decimals == 18, "TokenMinter: Invalid data");
 
-        _tokenAddress = msg.sender;
+        tokenAddress = msg.sender;
         
-        IBaseOperator(viewOperatorAddress()).tokenToAuditExternal(_tokenAddress, _name, _symbol, _managementAddress);
+        IBaseOperator(viewOperatorAddress()).tokenToAuditExternal(tokenAddress, _name, _symbol, _managementAddress);
 
         ILaunchpadToken(launchpadToken).burnFrom(_managementAddress, ownTokenMintPrice);
     }
 
-    function setDAORole(address _launchpadDAOAddress)external onlyRole(DISPOSABLE_CALLER){
+    function setDAORole(address _launchpadDAOAddress) external onlyRole(DISPOSABLE_CALLER) {
         require(_launchpadDAOAddress != address(0), "TokenMinter: DAO zero address");
         _setupRole(DAO_ROLE, _launchpadDAOAddress);
     }
 
-    function updatePrice(uint _priceTypeId, uint _newValue)external onlyRole(DAO_ROLE){
+    function updatePrice(uint _priceTypeId, uint _newValue) external onlyRole(DAO_ROLE) {
         if(_priceTypeId == 0){
             defaultTokenMintPrice = _newValue;
         } else {
             ownTokenMintPrice = _newValue;
         }
     }
-
 }
 
        

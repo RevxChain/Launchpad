@@ -47,8 +47,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         address _tokenFactory, 
         address _liquidityVault,
         address _launchpadStaking
-    )
-    {
+    ) {
         launchpadToken = _launchpadToken;
         fundraiseFactory = _fundraiseFactory;
         scheduleVestingFactory = _scheduleVestingFactory;
@@ -65,11 +64,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         uint[6] memory _cliffTimestamp,
         uint _fundraiseStart,
         uint _manageAmount
-    )
-        external 
-        onlyRole(DEFAULT_CALLER) 
-        returns(address _vestingAddress)
-    {   
+    ) external onlyRole(DEFAULT_CALLER) returns(address vestingAddress) {   
         require(_fundraise != address(0), "VestingOperator: Invalid call");
         require(_cliffTimestamp[uint(Tier.Team)] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
         require(_cliffTimestamp[uint(Tier.Fourth)] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
@@ -79,7 +74,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
             require(_cliffTimestamp[i] > _cliffTimestamp[i + 1], "VestingOperator: Wrong cliff timestamps");
         }
 
-        _vestingAddress = IScheduleVestingFactory(scheduleVestingFactory).createScheduleVesting(
+        vestingAddress = IScheduleVestingFactory(scheduleVestingFactory).createScheduleVesting(
             _token,  
             _management, 
             _fundraise, 
@@ -96,11 +91,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         uint[30] memory _cliffAmount,
         uint _fundraiseStart,
         uint _manageAmount
-    )
-        external 
-        onlyRole(DEFAULT_CALLER)
-        returns(address _vestingAddress)
-    {   
+    ) external onlyRole(DEFAULT_CALLER) returns(address vestingAddress) {   
         require(_fundraise != address(0), "VestingOperator: Invalid call");
         require(_cliffTimestamp[25] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
         require(_cliffTimestamp[20] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
@@ -108,7 +99,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
 
         uint[6] memory _placeholder;
 
-        _vestingAddress = IScheduleVestingFactory(scheduleVestingFactory).createScheduleVesting(
+        vestingAddress = IScheduleVestingFactory(scheduleVestingFactory).createScheduleVesting(
             _token,  
             _management, 
             _fundraise, 
@@ -116,7 +107,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
             _placeholder
         );
 
-        IScheduleVesting(_vestingAddress)._setupData(_cliffTimestamp, _cliffAmount);
+        IScheduleVesting(vestingAddress)._setupData(_cliffTimestamp, _cliffAmount);
     }
 
     function createLinearVesting( 
@@ -128,12 +119,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         uint _vestingDuration,
         uint _vestingStartTimestamp,
         uint _vestingTeamStartTimestamp
-
-    )
-        external 
-        onlyRole(DEFAULT_CALLER)
-        returns(address _vestingAddress)
-    {   
+    ) external onlyRole(DEFAULT_CALLER) returns(address vestingAddress) {   
         require(_fundraiseAddress != address(0), "VestingOperator: Invalid call");
         require(_vestingTeamStartTimestamp >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
         require(_vestingStartTimestamp >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
@@ -143,7 +129,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         _vestingStartTimestamps[0] = _vestingStartTimestamp;
         _vestingStartTimestamps[5] = _vestingTeamStartTimestamp;
 
-        _vestingAddress = ILinearVestingFactory(linearVestingFactory).createLinearVesting(
+        vestingAddress = ILinearVestingFactory(linearVestingFactory).createLinearVesting(
             _tokenAddress,  
             _managementAddress, 
             _fundraiseAddress, 
@@ -161,11 +147,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
         uint _teamAmount, 
         uint _vestingDuration,
         uint[6] memory _vestingStartTimestamp
-    )
-        external 
-        onlyRole(DEFAULT_CALLER)
-        returns(address _vestingAddress)
-    {   
+    ) external onlyRole(DEFAULT_CALLER) returns(address vestingAddress) {   
         require(_fundraiseAddress != address(0), "VestingOperator: Invalid call");
         require(_vestingStartTimestamp[uint(Tier.Team)] >= block.timestamp + MINIMUM_TEAMLOCK_DURATION, "VestingOperator: Too scant team lock duration");
         require(_vestingStartTimestamp[uint(Tier.Fourth)] >= _fundraiseStart + MINIMUM_TIME_TO_VESTING_START, "VestingOperator: Too soon to start vesting");
@@ -175,7 +157,7 @@ contract VestingOperator is AccessControlOperator, ReentrancyGuard {
             require(_vestingStartTimestamp[i] > _vestingStartTimestamp[i + 1], "VestingOperator: Wrong cliff timestamps");
         }
 
-        _vestingAddress = ILinearVestingFactory(linearVestingFactory).createLinearVesting(
+        vestingAddress = ILinearVestingFactory(linearVestingFactory).createLinearVesting(
             _tokenAddress,  
             _managementAddress, 
             _fundraiseAddress, 

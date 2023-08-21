@@ -39,14 +39,14 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         uint unlockTime;
     }
 
-    constructor(address _launchTokenAddress) ERC20("sToken", "ST"){
+    constructor(address _launchTokenAddress) ERC20("sToken", "ST") {
         launchTokenAddress = _launchTokenAddress;
         _mint(address(this), INITIALIZATION_VALUE);
         lastUpdateRewardPool = block.timestamp;
         rewardPool = INITIALIZATION_VALUE;
     }
 
-    function deposit(uint _underlyingAmount, uint _lockDuration)external {
+    function deposit(uint _underlyingAmount, uint _lockDuration) external {
         address _user = msg.sender;
         require(_underlyingAmount >= MINIMUM_DEPOSIT_AMOUNT, "LaunchpadStaking: Not enough tokens to deposit");
         require(IERC20(launchTokenAddress).balanceOf(_user) >= _underlyingAmount, "LaunchpadStaking: Not enough tokens to deposit");
@@ -63,7 +63,7 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         IERC20(launchTokenAddress).safeTransferFrom(_user, address(this), _underlyingAmount);  
     }
 
-    function withdraw(uint _sTokenAmount)external {
+    function withdraw(uint _sTokenAmount) external {
         address _user = msg.sender;
         require(block.timestamp >= userInfo[_user].unlockTime, "LaunchpadStaking: Too soon to withdraw");
         require(balanceOf(_user) >= _sTokenAmount, "LaunchpadStaking: Not enough sTokens");
@@ -80,11 +80,11 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         IERC20(launchTokenAddress).safeTransfer(_user, _underlyingAmount);
     }
 
-    function _addPaymentTokens(uint _amount)external onlyRole(DEFAULT_CALLER){
+    function _addPaymentTokens(uint _amount) external onlyRole(DEFAULT_CALLER) {
         rewardPool += _amount;
     }
 
-    function updateRewardPool()public returns(uint){
+    function updateRewardPool() public returns(uint) {
         if ((block.timestamp - lastUpdateRewardPool) > 0){
             uint rewardPoolIncrease = 
             (rewardPool * BASE_STAKING_RATE * ((block.timestamp - lastUpdateRewardPool) * ACCURACY / ONE_YEAR_DURATION)) / (ACCURACY * ACCURACY);
@@ -94,11 +94,11 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         return rewardPool;
     }
 
-    function _userInfo(address _user)external view returns(uint _tier, uint _stakedAmount){ 
+    function _userInfo(address _user) external view returns(uint tier, uint stakedAmount) { 
         return (userInfo[_user].tier, userInfo[_user].stakedAmount);
     }
 
-    function calculaterTotalUsersInternal(address _user, uint _beforeUserTier)internal {
+    function calculaterTotalUsersInternal(address _user, uint _beforeUserTier) internal {
         if(_beforeUserTier != userInfo[_user].tier){
             if(_beforeUserTier != uint(Tier.FCFS)){
                 totalUsers[_beforeUserTier] -= 1;
@@ -107,7 +107,7 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         }
     }
 
-    function calculateTierInternal(uint _stakedAmount)internal pure returns(uint){
+    function calculateTierInternal(uint _stakedAmount) internal pure returns(uint) {
         if(_stakedAmount >= FOURTH_TIER_REQUIREMENT){
             return uint(Tier.Fourth);
         } else {
@@ -127,11 +127,11 @@ contract LaunchpadStaking is ERC20, AccessControlOperator, ReentrancyGuard, ERC2
         }
     }
 
-    function calculateNewRewardPoolInternal(uint _amount)internal view returns(uint _newPool){
+    function calculateNewRewardPoolInternal(uint _amount) internal view returns(uint newPool) {
         return totalSupply() * ACCURACY / (ACCURACY - (_amount * ACCURACY / (rewardPool + _amount)));
     }
 
-    function _transfer(address from, address to, uint256 amount)internal view override{
+    function _transfer(address from, address to, uint256 amount) internal view override { 
         require(decimals() == 0, "LaunchpadStaking: Untransferable token");
     }
 }

@@ -39,8 +39,7 @@ contract LinearVesting is AccessControl{
         uint _teamAmount,
         uint _vestingDuration,
         uint[6] memory _vestingStartTimestamp
-    )
-    {
+    ) {
         underlyingTokenAddress = _underlyingTokenAddress;
         managementAddress = _managementAddress;
         fundraiseAddress = _fundraiseAddress;
@@ -50,7 +49,7 @@ contract LinearVesting is AccessControl{
         _setupRole(DEFAULT_ADMIN_ROLE, _operatorAddress);
     }
 
-    function claim()external {
+    function claim() external {
         address _user = msg.sender;
         uint _amount;
         uint _tier;
@@ -98,11 +97,7 @@ contract LinearVestingFactory is AccessControlOperator {
         uint _teamAmount, 
         uint _vestingDuration,
         uint[6] memory _vestingStartTimestamp
-    ) 
-        external 
-        onlyRole(DEFAULT_CALLER)
-        returns(address _vestingAddress)
-    {
+    ) external onlyRole(DEFAULT_CALLER) returns(address vestingAddress) {
         require(_token != address(0), "VestingFactory: Zero address");
         LinearVesting _vesting = new LinearVesting(
             _token, 
@@ -113,8 +108,7 @@ contract LinearVestingFactory is AccessControlOperator {
             _vestingDuration,
             _vestingStartTimestamp 
         );
-        _vestingAddress = address(_vesting);
+        vestingAddress = address(_vesting);
     }
-
 }
 

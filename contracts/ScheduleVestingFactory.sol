@@ -33,8 +33,7 @@ contract SimpleScheduleVesting {
         address _operatorAddress, 
         uint[6] memory _cliffTimestamp,
         uint _teamAmount
-    )
-    {
+    ) {
         underlyingTokenAddress = _underlyingTokenAddress;
         managementAddress = _managementAddress;
         fundraiseAddress = _fundraiseAddress;
@@ -44,7 +43,7 @@ contract SimpleScheduleVesting {
         
     }
 
-    function claim(address _user)external onlyCaller(msg.sender){
+    function claim(address _user) external onlyCaller(msg.sender) {
         uint _amount;
         uint _tier;
 
@@ -101,8 +100,7 @@ contract ScheduleVesting {
         address _fundraiseAddress,
         address _operatorAddress, 
         uint _teamAmount
-    )
-    {
+    ) {
         underlyingTokenAddress = _underlyingTokenAddress;
         managementAddress = _managementAddress;
         fundraiseAddress = _fundraiseAddress;
@@ -110,7 +108,7 @@ contract ScheduleVesting {
         defaultCaller = _operatorAddress;    
     }
 
-    function _setupData(uint[30] memory _cliffTimestamp, uint[30] memory _cliffAmount)external onlyCaller(msg.sender){
+    function _setupData(uint[30] memory _cliffTimestamp, uint[30] memory _cliffAmount) external onlyCaller(msg.sender) {
         require(cliffs[0].cliffTimestamp[0] == 0, "Vesting: Data has defined already");
         uint x;
         for(uint i; i < TIERS; i++){
@@ -148,7 +146,7 @@ contract ScheduleVesting {
         }  
     }
 
-    function claim(address _user, uint _cliffRound)external onlyCaller(msg.sender){
+    function claim(address _user, uint _cliffRound) external onlyCaller(msg.sender) {
         require(uint(Tier.Team) >= _cliffRound , "Vesting: Invalid cliff round");
         uint _totalAmount;
         uint _tier;
@@ -174,7 +172,7 @@ contract ScheduleVesting {
         IERC20(underlyingTokenAddress).safeTransfer(_user, _amount);
     }
 
-    function _viewData(uint _tier, uint _cliffRound)external view returns(uint, uint){
+    function _viewData(uint _tier, uint _cliffRound)external view returns(uint, uint) {
         return (cliffs[_tier].cliffTimestamp[_cliffRound], cliffs[_tier].cliffAmount[_cliffRound]);
     }
 }
@@ -187,11 +185,7 @@ contract ScheduleVestingFactory is AccessControlOperator {
         address _fundraiseAddress, 
         uint _teamAmount, 
         uint[6] memory _cliffTimestamp
-    ) 
-        external 
-        onlyRole(DEFAULT_CALLER)
-        returns(address _vestingAddress)
-    {
+    ) external onlyRole(DEFAULT_CALLER) returns(address vestingAddress) {
         require(_token != address(0), "VestingFactory: Zero address");
 
         if(_cliffTimestamp[0] == 0) {
@@ -203,7 +197,7 @@ contract ScheduleVestingFactory is AccessControlOperator {
                 _teamAmount 
             );
 
-            _vestingAddress = address(_vesting);
+            vestingAddress = address(_vesting);
         } else {
             SimpleScheduleVesting _vesting = new SimpleScheduleVesting(
                 _token, 
@@ -214,7 +208,7 @@ contract ScheduleVestingFactory is AccessControlOperator {
                 _teamAmount
             );
 
-            _vestingAddress = address(_vesting);
+            vestingAddress = address(_vesting);
         }
     }
 }

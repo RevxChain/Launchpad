@@ -28,9 +28,7 @@ contract ERC20Token is ERC20, ERC20Burnable, AccessControl {
         uint _mintUnlock,
         uint _burnUnlock,
         address _tokenMinter
-    ) 
-        ERC20(_name, _symbol)
-    {
+    ) ERC20(_name, _symbol) {
         operatorAddress = _operatorAddress;
         mintUnlock = _mintUnlock;
         burnUnlock = _burnUnlock;
@@ -44,25 +42,23 @@ contract ERC20Token is ERC20, ERC20Burnable, AccessControl {
         uint _vestingAmount,
         uint _liquidityAmount,
         address _minter
-    ) external onlyRole(OPERATOR_ROLE){
+    ) external onlyRole(OPERATOR_ROLE) {
         require(initializeLock == 0, "ERC20Token: Initialized");
         _mint(operatorAddress, _vestingAmount);
         _mint(_liquidityVault, _liquidityAmount);
         initializeLock = 1;
-        if(mintUnlock == 1){
-            _setupRole(MINTER_ROLE, _minter);
-        }
+        if(mintUnlock == 1) _setupRole(MINTER_ROLE, _minter);
     }
 
-    function mintTo(address _to, uint _amount)external onlyRole(MINTER_ROLE){
+    function mintTo(address _to, uint _amount) external onlyRole(MINTER_ROLE) {
         _mint(_to, _amount);
     }
 
-    function burn(uint256 amount)public override burnLocked() {
+    function burn(uint256 amount) public override burnLocked() {
         super._burn(msg.sender, amount);
     }
 
-    function burnFrom(address account, uint256 amount)public override burnLocked() {
+    function burnFrom(address account, uint256 amount) public override burnLocked() {
         super.burnFrom(account, amount);
     }
 
@@ -76,11 +72,7 @@ contract TokenFactory is AccessControlOperator {
         uint _mintUnlock,
         uint _burnUnlock,
         address _operatorAddress
-    )   
-        external 
-        onlyRole(DEFAULT_CALLER) 
-        returns(address _tokenAddress)
-    {
+    ) external onlyRole(DEFAULT_CALLER) returns(address tokenAddress) {
         ERC20Token _token = new ERC20Token(
             _name, 
             _symbol, 
@@ -89,7 +81,6 @@ contract TokenFactory is AccessControlOperator {
             _burnUnlock, 
             viewOperatorAddress()
         );
-        _tokenAddress = address(_token); 
+        tokenAddress = address(_token); 
     }
-
 }
