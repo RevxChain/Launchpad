@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
-import "./utils/AccessControlOperator.sol";
-
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
@@ -11,9 +8,9 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol"; 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
 
-contract LiquidityRouter is AccessControlOperator, ReentrancyGuard {
+import "./utils/AccessControlOperator.sol";
 
-    uint public constant DEADLINE_DURATION = 300;
+contract LiquidityRouter is AccessControlOperator, ReentrancyGuard {
 
     address public immutable uniswapRouterAddress;
     address public immutable uniswapFactoryAddress;
@@ -26,55 +23,53 @@ contract LiquidityRouter is AccessControlOperator, ReentrancyGuard {
     }
 
     function addLiquidityExternal(
-        address _token, 
-        uint _tokenAmount, 
-        uint _burn,
-        bytes calldata _data
+        address token, 
+        uint tokenAmount, 
+        uint burn,
+        bytes calldata data
     )
         external 
         payable 
         onlyRole(DEFAULT_CALLER)
         returns(
-            uint _amountToken, 
-            uint _amountETH, 
-            uint _liquidity,
-            address _pairAddress
+            uint amountToken, 
+            uint amountETH, 
+            uint liquidity,
+            address pairAddress
         )
     {
-        uint _etherValue = msg.value;
-        (_amountToken, _amountETH, _liquidity, _pairAddress) = addLiquidityInternal(_token, _tokenAmount, _etherValue, _burn);
+        (amountToken, amountETH, liquidity, pairAddress) = addLiquidityInternal(token, tokenAmount, msg.value, burn);
 
     }
 
     function addLiquidityInternal(
-        address _token, 
-        uint _amountTokenDesired, 
-        uint _etherValue,
-        uint _burn
+        address token, 
+        uint amountTokenDesired, 
+        uint etherValue,
+        uint burn
     )
         internal 
         returns(
-            uint _amountToken, 
-            uint _amountETH, 
-            uint _liquidity,
-            address _pairAddress
+            uint amountToken, 
+            uint amountETH, 
+            uint liquidity,
+            address pairAddress
         )
     {   
-        address _receiver = viewOperatorAddress();
-        if(_burn == 0){
-            _receiver = address(0);
-        }
-        (_amountToken, _amountETH, _liquidity) = IUniswapV2Router02(uniswapRouterAddress).addLiquidityETH{value: _etherValue}(
-            _token,
-            _amountTokenDesired,
-            _amountTokenDesired,
-            _etherValue,
+        address _receiver = getOperatorAddress();
+        if(burn == 0) _receiver = address(0);
+
+        (amountToken, amountETH, liquidity) = IUniswapV2Router02(uniswapRouterAddress).addLiquidityETH{value: etherValue}(
+            token,
+            amountTokenDesired,
+            amountTokenDesired,
+            etherValue,
             _receiver,
-            block.timestamp + DEADLINE_DURATION
+            block.timestamp
         );
 
-        _pairAddress = IUniswapV2Factory(uniswapFactoryAddress).getPair(_token, WETH);
-        require(IUniswapV2ERC20(_pairAddress).balanceOf(_receiver) >= _liquidity, "LiquidityRouter: 0x00");
+        pairAddress = IUniswapV2Factory(uniswapFactoryAddress).getPair(token, WETH);
+        require(IUniswapV2ERC20(pairAddress).balanceOf(_receiver) >= liquidity, "LiquidityRouter: 0x00");
     }
 }
 

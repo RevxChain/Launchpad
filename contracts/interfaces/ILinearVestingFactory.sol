@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 interface ILinearVesting {
 
-    function teamAmount()external view returns(uint);
+    function teamAmount() external view returns(uint);
 
-    function claimed(address _user)external view returns(bool);
+    function claimed(address user) external view returns(bool);
 
-    function cliffTimestamp(uint _tier)external view returns(uint);
+    function cliffTimestamp(uint tier) external view returns(uint);
 
-    function claim(address _user)external;
+    function claim(address user) external returns(uint tokensToClaim);
 }  
 
 interface ILinearVestingFactory {
 
     function createLinearVesting(
-        address _token,  
-        address _managementAddress, 
-        address _fundraiseAddress, 
-        uint _teamAmount, 
-        uint _vestingDuration,
-        uint[6] memory _vestingStartTimestamp
-    ) external returns(address _vestingAddress);
+        address token,  
+        address managementAddress, 
+        address fundraiseAddress, 
+        uint teamAmount, 
+        uint vestingDuration,
+        uint[6] memory vestingStartTimestamp
+    ) external returns(address vestingAddress);
 
 }
 

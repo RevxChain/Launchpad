@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./interfaces/IFundraiseFactory.sol";
+
 import "./utils/AccessControlOperator.sol";
 
-contract LinearVesting is AccessControl{
+import "./interfaces/IFundraiseFactory.sol";
+
+contract LinearVesting is AccessControl {
     using SafeERC20 for IERC20;
 
     uint private immutable teamAmount; 
@@ -46,13 +47,12 @@ contract LinearVesting is AccessControl{
         teamAmount = _teamAmount;
         vestingStartTimestamp = _vestingStartTimestamp;
         vestingDuration = _vestingDuration;
-        _setupRole(DEFAULT_ADMIN_ROLE, _operatorAddress);
+        _grantRole(DEFAULT_ADMIN_ROLE, _operatorAddress);
     }
 
-    function claim() external {
-        address _user = msg.sender;
-        uint _amount;
-        uint _tier;
+    function claim() external returns(uint tokensToClaim) {
+        (address _user, uint _amount, uint _tier) = (msg.sender, 0, 0);
+
         if(userData[_user].totalAllocation == 0){
             if(_user != managementAddress){
                 (_tier, ,_amount) = IFundraise(fundraiseAddress)._userData(_user);
@@ -72,19 +72,22 @@ contract LinearVesting is AccessControl{
 
             userData[_user].totalAllocation = _amount;
         }
+
         require(userData[_user].totalAllocation > userData[_user].claimedTokens, "Vesting: All tokens claimed already");
         require(block.timestamp > userData[_user].lastClaimTimestamp, "Vesting: Too soon to claim");
-        uint _tokensToClaim;
+
         uint _elapsedTime;
+        
         if(block.timestamp >= userData[_user].vestingStartTimestamp + vestingDuration){
-            _tokensToClaim = userData[_user].totalAllocation - userData[_user].claimedTokens; 
+            tokensToClaim = userData[_user].totalAllocation - userData[_user].claimedTokens; 
         } else {
             _elapsedTime = block.timestamp - userData[_user].lastClaimTimestamp;
-            _tokensToClaim = _elapsedTime * userData[_user].totalAllocation / vestingDuration;
+            tokensToClaim = _elapsedTime * userData[_user].totalAllocation / vestingDuration;
         }
-        userData[_user].claimedTokens += _tokensToClaim;
+        userData[_user].claimedTokens += tokensToClaim;
         require(userData[_user].totalAllocation >= userData[_user].claimedTokens, "Vesting: All tokens claimed already");
-        IERC20(underlyingTokenAddress).safeTransfer(_user, _tokensToClaim);
+
+        IERC20(underlyingTokenAddress).safeTransfer(_user, tokensToClaim);
     }
 }
 
@@ -103,7 +106,7 @@ contract LinearVestingFactory is AccessControlOperator {
             _token, 
             _managementAddress, 
             _fundraiseAddress,  
-            viewOperatorAddress(),
+            getOperatorAddress(),
             _teamAmount,
             _vestingDuration,
             _vestingStartTimestamp 

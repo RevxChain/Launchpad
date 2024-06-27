@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -76,20 +76,21 @@ contract LaunchpadDAO is ReentrancyGuard {
     }
 
     function createPriceProposal(
-        uint _priceTypeId, 
-        uint _newValue, 
-        string calldata _description
+        uint priceTypeId, 
+        uint newValue, 
+        string calldata description
     ) external nonReentrant() returns(bytes32 proposalId) {
         address _user = msg.sender;
-        (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
+        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough staked tokens to create proposal");
         require(IERC20(launchpadTokenAddress).balanceOf(_user) >= PAYMENT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough launchpad tokens to create proposal");
-        require(_priceTypeId == uint(Prices.DefaultTokenMintPrice) || _priceTypeId == uint(Prices.OwnTokenMintPrice), "LaunchpadDAO: Wrong price type");
-        require(priceProposalExist == false, "LaunchpadDAO: Price proposal is exist already");
+        require(priceTypeId == uint(Prices.DefaultTokenMintPrice) || priceTypeId == uint(Prices.OwnTokenMintPrice), "LaunchpadDAO: Wrong price type");
+        require(!priceProposalExist, "LaunchpadDAO: Price proposal is exist already");
 
         string memory _priceType;
         uint _baseValue;
-        if(_priceTypeId == uint(Prices.DefaultTokenMintPrice)){
+
+        if(priceTypeId == uint(Prices.DefaultTokenMintPrice)){
             _priceType = "DefaultTokenMintPrice";
             _baseValue = ITokenMinter(tokenMinterAddress).defaultTokenMintPrice();
         } else {
@@ -103,8 +104,8 @@ contract LaunchpadDAO is ReentrancyGuard {
         proposalId = calculatePriceProposalId(
             _priceType, 
             _baseValue, 
-            _newValue, 
-            _description, 
+            newValue, 
+            description, 
             block.timestamp, 
             _startTime, 
             _endTime 
@@ -115,8 +116,8 @@ contract LaunchpadDAO is ReentrancyGuard {
             priceType: _priceType,
             priceTypeId: _priceTypeId,
             baseValue: _baseValue,
-            newValue: _newValue,
-            description: _description,
+            newValue: newValue,
+            description: description,
             forVotes: 0,
             againstVotes: 0,
             proposeTime: block.timestamp,
@@ -130,15 +131,15 @@ contract LaunchpadDAO is ReentrancyGuard {
     }
 
     function createAddressProposal(
-        address _newAddress, 
-        string calldata _description
+        address newAddress, 
+        string calldata description
     ) external nonReentrant() returns(bytes32 proposalId) {
         address _user = msg.sender;
-        (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
+        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough staked tokens to create proposal");
         require(IERC20(launchpadTokenAddress).balanceOf(_user) >= PAYMENT_TO_CREATE_PROPOSAL, "LaunchpadDAO: Not enough launchpad tokens to create proposal");
-        require(contractSize(_newAddress) > 0, "LaunchpadDAO: Invalid address");
-        require(routerProposalExist == false, "LaunchpadDAO: Router proposal is exist already");
+        require(contractSize(newAddress) > 0, "LaunchpadDAO: Invalid address");
+        require(!routerProposalExist, "LaunchpadDAO: Router proposal is exist already");
 
         address _baseAddress = ILiquidityVault(liquidityVaultAddress).liquidityRouterAddress();
         uint _startTime = block.timestamp + TIME_TO_START_VOTING;
@@ -146,8 +147,8 @@ contract LaunchpadDAO is ReentrancyGuard {
 
         proposalId = calculateRouterProposalId( 
             _baseAddress, 
-            _newAddress, 
-            _description, 
+            newAddress, 
+            description, 
             block.timestamp, 
             _startTime, 
             _endTime 
@@ -156,8 +157,8 @@ contract LaunchpadDAO is ReentrancyGuard {
         routerProposals[proposalId] = RouterProposal({
             proposalId: proposalId,
             baseAddress: _baseAddress,
-            newAddress: _newAddress,
-            description: _description,
+            newAddress: newAddress,
+            description: description,
             forVotes: 0,
             againstVotes: 0,
             proposeTime: block.timestamp,
@@ -171,138 +172,145 @@ contract LaunchpadDAO is ReentrancyGuard {
     }
 
     function votePriceProposal(
-        bytes32 _proposalId, 
-        bool _vote
+        bytes32 proposalId, 
+        bool vote
     ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
         address _user = msg.sender;
-        require(block.timestamp >= priceProposals[_proposalId].startTime, "LaunchpadDAO: Too soon to vote");
-        require(priceProposals[_proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
-        if(priceProposals[_proposalId].status == uint(Status.Preparation)){
-            priceProposals[_proposalId].status = uint(Status.Voting);
-        } else {
-            require(priceProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Something went wrong");
-        }
-        (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
-        require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
-        require(voted[_user][_proposalId] == false, "LaunchpadDAO: You are voted already");
-        require(priceProposalExist == true, "LaunchpadDAO: Price proposal is not exist");
+        require(block.timestamp >= priceProposals[proposalId].startTime, "LaunchpadDAO: Too soon to vote");
+        require(priceProposals[proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
 
-        if(_vote == true) {
-            priceProposals[_proposalId].forVotes += 1;
+        if(priceProposals[proposalId].status == uint(Status.Preparation)){
+            priceProposals[proposalId].status = uint(Status.Voting);
+        } else {
+            require(priceProposals[proposalId].status == uint(Status.Voting), "LaunchpadDAO: Something went wrong");
+        }
+
+        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
+        require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
+        require(!voted[_user][proposalId], "LaunchpadDAO: You are voted already");
+        require(priceProposalExist, "LaunchpadDAO: Price proposal is not exist");
+
+        if(vote){
+            priceProposals[proposalId].forVotes += 1;
         } else {  
-            priceProposals[_proposalId].againstVotes += 1;
+            priceProposals[proposalId].againstVotes += 1;
         } 
         
-        voted[_user][_proposalId] = true;
+        voted[_user][proposalId] = true;
 
-        return (priceProposals[_proposalId].forVotes, priceProposals[_proposalId].againstVotes);
+        return (priceProposals[proposalId].forVotes, priceProposals[proposalId].againstVotes);
     }
 
     function voteRouterProposal(
-        bytes32 _proposalId, 
-        bool _vote
+        bytes32 proposalId, 
+        bool vote
     ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
         address _user = msg.sender;
-        require(block.timestamp >= routerProposals[_proposalId].startTime, "LaunchpadDAO: Too soon to vote");
-        require(routerProposals[_proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
-        if(routerProposals[_proposalId].status == uint(Status.Preparation)){
-            routerProposals[_proposalId].status = uint(Status.Voting);
+        require(block.timestamp >= routerProposals[proposalId].startTime, "LaunchpadDAO: Too soon to vote");
+        require(routerProposals[proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
+        if(routerProposals[proposalId].status == uint(Status.Preparation)){
+            routerProposals[proposalId].status = uint(Status.Voting);
         } else {
-            require(routerProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Proposal has ended");
+            require(routerProposals[proposalId].status == uint(Status.Voting), "LaunchpadDAO: Proposal has ended");
         }
-        (, uint _stakedAmount) = ILaunchpadStaking(launchpadStakingAddress)._userInfo(_user);
-        require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
-        require(voted[_user][_proposalId] == false, "LaunchpadDAO: You are voted already");
-        require(routerProposalExist == true, "LaunchpadDAO: Router proposal is not exist");
-        if(_vote == true) {
-            routerProposals[_proposalId].forVotes += 1;
-        } else {  
-            routerProposals[_proposalId].againstVotes += 1;
-        } 
-        voted[_user][_proposalId] = true;
 
-        return (routerProposals[_proposalId].forVotes, routerProposals[_proposalId].againstVotes);
+        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
+        require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
+        require(!voted[_user][proposalId], "LaunchpadDAO: You are voted already");
+        require(routerProposalExist, "LaunchpadDAO: Router proposal is not exist");
+
+        if(vote){
+            routerProposals[proposalId].forVotes += 1;
+        } else {  
+            routerProposals[proposalId].againstVotes += 1;
+        } 
+        voted[_user][proposalId] = true;
+
+        return (routerProposals[proposalId].forVotes, routerProposals[proposalId].againstVotes);
     }
 
-    function executePriceProposal(bytes32 _proposalId) external nonReentrant() returns(bool result) {
-        require(block.timestamp >= priceProposals[_proposalId].endTime, "LaunchpadDAO: Proposal has not ended");
-        require(priceProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Voting is processing");
-        require(priceProposalExist == true, "LaunchpadDAO: Price proposal is not exist");
+    function executePriceProposal(bytes32 proposalId) external nonReentrant() returns(bool result) {
+        require(block.timestamp >= priceProposals[proposalId].endTime, "LaunchpadDAO: Proposal has not ended");
+        require(priceProposals[proposalId].status == uint(Status.Voting), "LaunchpadDAO: Voting is processing");
+        require(priceProposalExist, "LaunchpadDAO: Price proposal is not exist");
         priceProposalExist = false;
-        uint _totalVotes = priceProposals[_proposalId].forVotes + priceProposals[_proposalId].againstVotes;
+        uint _totalVotes = priceProposals[proposalId].forVotes + priceProposals[proposalId].againstVotes;
         uint _quorumKink = _totalVotes * MINIMUM_QUORUM / DIV;
-        if(priceProposals[_proposalId].forVotes >= _quorumKink){
-            priceProposals[_proposalId].status = uint(Status.Executed);
-            ITokenMinter(tokenMinterAddress).updatePrice(priceProposals[_proposalId].priceTypeId, priceProposals[_proposalId].newValue);
+
+        if(priceProposals[proposalId].forVotes >= _quorumKink){
+            priceProposals[proposalId].status = uint(Status.Executed);
+            ITokenMinter(tokenMinterAddress).updatePrice(priceProposals[proposalId].priceTypeId, priceProposals[proposalId].newValue);
 
             return true;
         } else {    
-            priceProposals[_proposalId].status = uint(Status.Rejected);
+            priceProposals[proposalId].status = uint(Status.Rejected);
 
             return false;
         }
     }
 
-    function executeRouterProposal(bytes32 _proposalId) external nonReentrant() returns(bool result) {
-        require(block.timestamp >= routerProposals[_proposalId].endTime, "LaunchpadDAO: Proposal has not ended");
-        require(routerProposals[_proposalId].status == uint(Status.Voting), "LaunchpadDAO: Voting is processing");
-        require(routerProposalExist == true, "LaunchpadDAO: Router proposal is not exist");
+    function executeRouterProposal(bytes32 proposalId) external nonReentrant() returns(bool result) {
+        require(block.timestamp >= routerProposals[proposalId].endTime, "LaunchpadDAO: Proposal has not ended");
+        require(routerProposals[proposalId].status == uint(Status.Voting), "LaunchpadDAO: Voting is processing");
+        require(routerProposalExist, "LaunchpadDAO: Router proposal is not exist");
         routerProposalExist = false;
-        uint _totalVotes = routerProposals[_proposalId].forVotes + routerProposals[_proposalId].againstVotes;
+
+        uint _totalVotes = routerProposals[proposalId].forVotes + routerProposals[proposalId].againstVotes;
         uint _quorumKink = _totalVotes * MINIMUM_QUORUM / DIV;
-        if(routerProposals[_proposalId].forVotes >= _quorumKink){
-            routerProposals[_proposalId].status = uint(Status.Executed);
-            ILiquidityVault(liquidityVaultAddress).updateRouterAddress(routerProposals[_proposalId].newAddress);
+
+        if(routerProposals[proposalId].forVotes >= _quorumKink){
+            routerProposals[proposalId].status = uint(Status.Executed);
+            ILiquidityVault(liquidityVaultAddress).updateRouterAddress(routerProposals[proposalId].newAddress);
 
             return true;
         } else {    
-            routerProposals[_proposalId].status = uint(Status.Rejected);
+            routerProposals[proposalId].status = uint(Status.Rejected);
 
             return false;
         }  
     }
 
     function calculatePriceProposalId(
-        string memory _priceType, 
-        uint _baseValue, 
-        uint _newValue, 
-        string calldata _description, 
-        uint _proposeTime,
-        uint _startTime,
-        uint _endTime
-    ) public pure returns(bytes32 _proposalId) {
+        string calldata priceType, 
+        uint baseValue, 
+        uint newValue, 
+        string calldata description, 
+        uint proposeTime,
+        uint startTime,
+        uint endTime
+    ) public pure returns(bytes32 proposalId) {
         return keccak256(abi.encode(
-            keccak256(bytes(_priceType)), 
-            _baseValue, 
-            _newValue, 
-            keccak256(bytes(_description)), 
-            _proposeTime, 
-            _startTime, 
-            _endTime
+            keccak256(bytes(priceType)), 
+            baseValue, 
+            newValue, 
+            keccak256(bytes(description)), 
+            proposeTime, 
+            startTime, 
+            endTime
         ));
     }
 
     function calculateRouterProposalId( 
-        address _baseAddress, 
-        address _newAddress, 
-        string calldata _description, 
-        uint _proposeTime,
-        uint _startTime,
-        uint _endTime
+        address baseAddress, 
+        address newAddress, 
+        string calldata description, 
+        uint proposeTime,
+        uint startTime,
+        uint endTime
     ) public pure returns(bytes32 proposalId) {
         return keccak256(abi.encode( 
-            _baseAddress, 
-            _newAddress, 
-            keccak256(bytes(_description)), 
-            _proposeTime, 
-            _startTime, 
-            _endTime
+            baseAddress, 
+            newAddress, 
+            keccak256(bytes(description)), 
+            proposeTime, 
+            startTime, 
+            endTime
         ));
     }
 
-    function contractSize(address _address) internal view returns(uint size) {
+    function contractSize(address target) internal view returns(uint size) {
         assembly {
-            size := extcodesize(_address)
+            size := extcodesize(target)
         }
     }
 }

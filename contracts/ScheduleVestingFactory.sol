@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./interfaces/IFundraiseFactory.sol";
+
 import "./utils/AccessControlOperator.sol";
+
+import "./interfaces/IFundraiseFactory.sol";
 
 contract SimpleScheduleVesting {
     using SafeERC20 for IERC20;
@@ -15,7 +17,7 @@ contract SimpleScheduleVesting {
     address private immutable underlyingTokenAddress;
     address private immutable defaultCaller;
 
-    mapping(address => bool) public claimed;
+    mapping(address user => bool) public claimed;
 
     uint[6] public cliffTimestamp;
 
@@ -43,22 +45,22 @@ contract SimpleScheduleVesting {
         
     }
 
-    function claim(address _user) external onlyCaller(msg.sender) {
-        uint _amount;
+    function claim(address user) external onlyCaller(msg.sender) returns(uint claimedAmount) {
         uint _tier;
 
-        if(_user != managementAddress){
-            (_tier, ,_amount) = IFundraise(fundraiseAddress)._userData(_user);
-            require(_amount > 0, "Vesting: You are not a participant");
+        if(user != managementAddress){
+            (_tier, , claimedAmount) = IFundraise(fundraiseAddress)._userData(user);
+            require(claimedAmount > 0, "Vesting: You are not a participant");
         } else {
-            _amount = teamAmount;
+            claimedAmount = teamAmount;
             _tier = uint(Tier.Team);
         }
 
         require(block.timestamp >= cliffTimestamp[_tier], "Vesting: Too soon to claim");
-        require(claimed[_user] == false, "Vesting: Already claimed");
-        IERC20(underlyingTokenAddress).safeTransfer(_user, _amount);
-        claimed[_user] = true;
+        require(!claimed[user], "Vesting: Already claimed");
+        claimed[user] = true;
+
+        IERC20(underlyingTokenAddress).safeTransfer(user, claimedAmount);
     }
 
 }
@@ -76,9 +78,7 @@ contract ScheduleVesting {
     address private immutable underlyingTokenAddress;
     address private immutable defaultCaller;
 
-    // tier => data
     mapping(uint => Cliff) private cliffs;
-    // user => round => claimed
     mapping(address => mapping(uint => bool)) public claimed;
     mapping(address => uint) public claimedAmount;
 
@@ -108,26 +108,26 @@ contract ScheduleVesting {
         defaultCaller = _operatorAddress;    
     }
 
-    function _setupData(uint[30] memory _cliffTimestamp, uint[30] memory _cliffAmount) external onlyCaller(msg.sender) {
+    function _setupData(uint[30] memory cliffTimestamp, uint[30] memory cliffAmount) external onlyCaller(msg.sender) {
         require(cliffs[0].cliffTimestamp[0] == 0, "Vesting: Data has defined already");
         uint x;
         for(uint i; i < TIERS; i++){
             for(uint n = x; n < x + 4; n++){
-                require(_cliffTimestamp[n + 1] > _cliffTimestamp[n], "Vesting: Wrong cliff timestamps 0x00");
+                require(cliffTimestamp[n + 1] > cliffTimestamp[n], "Vesting: Wrong cliff timestamps 0x00");
             }
             x += 5;
         }
         x = 0;
 
-        for(uint i; i < _cliffTimestamp.length - 11; i += 5){
-            require(_cliffTimestamp[i] > _cliffTimestamp[i + 5], "Vesting: Wrong cliff timestamps 0x01");
+        for(uint i; i < cliffTimestamp.length - 11; i += 5){
+            require(cliffTimestamp[i] > cliffTimestamp[i + 5], "Vesting: Wrong cliff timestamps 0x01");
         }
 
         for(uint i; i < TIERS; i++){
             uint _totalAmount = 0;
             
             for(uint n = x; n < x + 5; n++){
-                _totalAmount += _cliffAmount[n];
+                _totalAmount += cliffAmount[n];
             }
             require(_totalAmount == 100, "Vesting: Invalid percentage");
             x += 5;
@@ -137,8 +137,8 @@ contract ScheduleVesting {
         for(uint i; i < TIERS; i++){
             uint y = 0;
             for(uint n = x; n < x + 5; n++){
-                cliffs[i].cliffTimestamp[y] = _cliffTimestamp[n];
-                cliffs[i].cliffAmount[y] = _cliffAmount[n];
+                cliffs[i].cliffTimestamp[y] = cliffTimestamp[n];
+                cliffs[i].cliffAmount[y] = cliffAmount[n];
                 y += 1;
 
             }
@@ -146,34 +146,33 @@ contract ScheduleVesting {
         }  
     }
 
-    function claim(address _user, uint _cliffRound) external onlyCaller(msg.sender) {
-        require(uint(Tier.Team) >= _cliffRound , "Vesting: Invalid cliff round");
-        uint _totalAmount;
-        uint _tier;
+    function claim(address user, uint cliffRound) external onlyCaller(msg.sender) returns(uint claimedAmount) {
+        require(uint(Tier.Team) >= cliffRound , "Vesting: Invalid cliff round");
+        (uint _totalAmount, uint _tier);
 
-        if(_user != managementAddress){
-            (_tier, ,_totalAmount) = IFundraise(fundraiseAddress)._userData(_user);
+        if(user != managementAddress){
+            (_tier, ,_totalAmount) = IFundraise(fundraiseAddress)._userData(user);
             require(_totalAmount > 0, "Vesting: You are not a participant");
         } else {
             _totalAmount = teamAmount;
             _tier = uint(Tier.Team);
         }
 
-        require(claimed[_user][_cliffRound] == false, "Vesting: Already claimed");
-        require(block.timestamp >= cliffs[_tier].cliffTimestamp[_cliffRound], "Vesting: Too soon to claim");
-        require(cliffs[_tier].cliffAmount[_cliffRound] != 0, "Vesting: Invalid vesting round");
-        uint _amount = _totalAmount * cliffs[_tier].cliffAmount[_cliffRound] / DIV;
+        require(!claimed[user][cliffRound], "Vesting: Already claimed");
+        require(block.timestamp >= cliffs[_tier].cliffTimestamp[cliffRound], "Vesting: Too soon to claim");
+        require(cliffs[_tier].cliffAmount[cliffRound] != 0, "Vesting: Invalid vesting round");
+        claimedAmount = _totalAmount * cliffs[_tier].cliffAmount[cliffRound] / DIV;
 
-        claimed[_user][_cliffRound] = true;
-        claimedAmount[_user] += _amount;
+        claimed[user][cliffRound] = true;
+        claimedAmount[user] += claimedAmount;
 
-        require(_totalAmount >= claimedAmount[_user], "Vesting: Something went wrong");
+        require(_totalAmount >= claimedAmount[user], "Vesting: Something went wrong");
 
-        IERC20(underlyingTokenAddress).safeTransfer(_user, _amount);
+        IERC20(underlyingTokenAddress).safeTransfer(user, claimedAmount);
     }
 
-    function _viewData(uint _tier, uint _cliffRound)external view returns(uint, uint) {
-        return (cliffs[_tier].cliffTimestamp[_cliffRound], cliffs[_tier].cliffAmount[_cliffRound]);
+    function _viewData(uint tier, uint cliffRound) external view returns(uint, uint) {
+        return (cliffs[tier].cliffTimestamp[cliffRound], cliffs[tier].cliffAmount[cliffRound]);
     }
 }
 
@@ -193,7 +192,7 @@ contract ScheduleVestingFactory is AccessControlOperator {
                 _token, 
                 _managementAddress, 
                 _fundraiseAddress, 
-                viewOperatorAddress(),
+                getOperatorAddress(),
                 _teamAmount 
             );
 
@@ -203,7 +202,7 @@ contract ScheduleVestingFactory is AccessControlOperator {
                 _token, 
                 _managementAddress, 
                 _fundraiseAddress, 
-                viewOperatorAddress(), 
+                getOperatorAddress(), 
                 _cliffTimestamp,
                 _teamAmount
             );

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
-import "./utils/AccessControlOperator.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
+
+import "./utils/AccessControlOperator.sol";
+
 import "./interfaces/ILiquidityRouter.sol";
 
 contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
@@ -16,7 +17,7 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
 
     address public liquidityRouterAddress;
 
-    bytes32 public constant DAO_ROLE = keccak256(abi.encode("DAO_ROLE"));
+    bytes32 public constant DAO_ROLE = keccak256("DAO_ROLE");
 
     mapping(address => LiquidityData) public liquidityData;
 
@@ -35,65 +36,60 @@ contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
     }
 
     function _initializeNewToken(
-        address _token, 
-        address _managementAddress, 
-        uint _tokensAmount, 
-        uint _fundraiseStart,
-        uint _liquidityLockDuration
+        address token, 
+        address managementAddress, 
+        uint tokensAmount, 
+        uint fundraiseStart,
+        uint liquidityLockDuration
     ) external payable onlyRole(DEFAULT_CALLER) {
         uint _value = msg.value;
-        liquidityData[_token].managementAddress = _managementAddress;
-        liquidityData[_token].initializedTokensAmount = _tokensAmount;
-        liquidityData[_token].initializedEtherAmount = _value;
-        liquidityData[_token].initiationTimestamp = _fundraiseStart + MINIMUM_TIME_TO_PROVIDE_START;
-        if(_liquidityLockDuration == 0){
-            liquidityData[_token].lockTimestamp = _liquidityLockDuration;
-        }
-        liquidityData[_token].lockTimestamp = block.timestamp + _liquidityLockDuration;
-        
+        liquidityData[token].managementAddress = managementAddress;
+        liquidityData[token].initializedTokensAmount = tokensAmount;
+        liquidityData[token].initializedEtherAmount = _value;
+        liquidityData[token].initiationTimestamp = fundraiseStart + MINIMUM_TIME_TO_PROVIDE_START;
+        if(liquidityLockDuration == 0) liquidityData[token].lockTimestamp = liquidityLockDuration;
+        liquidityData[token].lockTimestamp = block.timestamp + liquidityLockDuration;
     }
 
-    function addLiquidity(address _token, bytes calldata _data) external {
-        require(liquidityData[_token].managementAddress != address(0), "LiquidityVault: Invalid token");
-        require(liquidityData[_token].pairAddress == address(0), "LiquidityVault: Invalid token");
-        require(liquidityData[_token].lpTokensAmount == 0, "LiquidityVault: Already provided");
-        require(block.timestamp >= liquidityData[_token].initiationTimestamp, "LiquidityVault: Too soon");
+    function addLiquidity(address token, bytes calldata data) external {
+        require(liquidityData[token].managementAddress != address(0), "LiquidityVault: Invalid token");
+        require(liquidityData[token].pairAddress == address(0), "LiquidityVault: Invalid token");
+        require(liquidityData[token].lpTokensAmount == 0, "LiquidityVault: Already provided");
+        require(block.timestamp >= liquidityData[token].initiationTimestamp, "LiquidityVault: Too soon");
         
-        IERC20(_token).safeTransfer(liquidityRouterAddress, liquidityData[_token].initializedTokensAmount);
+        IERC20(token).safeTransfer(liquidityRouterAddress, liquidityData[token].initializedTokensAmount);
 
         ( , , uint _liquidity, address _pairAddress) = 
         ILiquidityRouter(liquidityRouterAddress).addLiquidityExternal
-        {value: liquidityData[_token].initializedEtherAmount}(
-            _token, 
-            liquidityData[_token].initializedTokensAmount, 
-            liquidityData[_token].lockTimestamp,
-            _data
+        {value: liquidityData[token].initializedEtherAmount}(
+            token, 
+            liquidityData[token].initializedTokensAmount, 
+            liquidityData[token].lockTimestamp,
+            data
         );
 
-        liquidityData[_token].lpTokensAmount = _liquidity;
-        liquidityData[_token].pairAddress = _pairAddress;
-
+        liquidityData[token].lpTokensAmount = _liquidity;
+        liquidityData[token].pairAddress = _pairAddress;
     }
 
-    function removeLiquidity(address _token, uint _amount) external {
+    function removeLiquidity(address token, uint amount) external {
         address _managementAddress = msg.sender;
-        require(liquidityData[_token].managementAddress == _managementAddress, "LiquidityVault: You are not a management");
-        require(liquidityData[_token].lpTokensAmount >= _amount, "LiquidityVault: Not enough lp tokens amount");
-        require(block.timestamp >= liquidityData[_token].lockTimestamp, "LiquidityVault: Too soon");
-        require(liquidityData[_token].lockTimestamp != 0, "LiquidityVault: Liquidity burnt");
+        require(liquidityData[token].managementAddress == _managementAddress, "LiquidityVault: You are not a management");
+        require(liquidityData[token].lpTokensAmount >= amount, "LiquidityVault: Not enough lp tokens amount");
+        require(block.timestamp >= liquidityData[token].lockTimestamp, "LiquidityVault: Too soon");
+        require(liquidityData[token].lockTimestamp != 0, "LiquidityVault: Liquidity burnt");
 
-        IERC20(liquidityData[_token].pairAddress).safeTransfer(_managementAddress, _amount);
+        liquidityData[token].lpTokensAmount -= amount;
 
-        liquidityData[_token].lpTokensAmount -= _amount;
-
+        IERC20(liquidityData[token].pairAddress).safeTransfer(_managementAddress, amount);
     }
 
-    function setDAORole(address _launchpadDAOAddress) external onlyRole(DISPOSABLE_CALLER) {
-        require(_launchpadDAOAddress != address(0), "LiquidityVault: DAO zero address");
-        _setupRole(DAO_ROLE, _launchpadDAOAddress);
+    function setDAORole(address launchpadDAOAddress) external onlyRole(DISPOSABLE_CALLER) {
+        require(launchpadDAOAddress != address(0), "LiquidityVault: DAO zero address");
+        _grantRole(DAO_ROLE, launchpadDAOAddress);
     }
 
-    function updateRouterAddress(address _newRouterAddress) external onlyRole(DAO_ROLE) {
-        liquidityRouterAddress = _newRouterAddress;
+    function updateRouterAddress(address newRouterAddress) external onlyRole(DAO_ROLE) {
+        liquidityRouterAddress = newRouterAddress;
     }
 }

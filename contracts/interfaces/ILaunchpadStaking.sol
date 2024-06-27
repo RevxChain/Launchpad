@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 interface ILaunchpadStaking {
 
-    function rewardPool()external view returns(uint);
+    function rewardPool() external view returns(uint);
 
-    function lastUpdateRewardPool()external view returns(uint);
+    function lastUpdateRewardPool() external view returns(uint);
 
-    function totalUsers(uint _tier)external view returns(uint);
+    function totalUsers(uint tier) external view returns(uint);
 
-    function deposit(uint _underlyingAmount, uint _lockDuration)external;
+    function deposit(uint underlyingAmount, uint lockDuration) external returns(uint userShare);
 
-    function withdraw(uint _sTokenAmount)external;
+    function withdraw(uint sTokenAmount) external returns(uint underlyingAmount);
 
-    function updateRewardPool()external returns(uint);
+    function updateRewardPool() external returns(uint);
 
-    function _userInfo(address _user)external view returns(uint _tier, uint _stakedAmount);
+    function userInfo(address user) external view returns(UserInfo memory);
 
-    function _addPaymentTokens(uint _amount)external;
+    function addPaymentTokens(uint amount) external;
+
+    struct UserInfo {
+        uint tier; 
+        uint stakedAmount; 
+        uint unlockTime;
+    }
 
 }

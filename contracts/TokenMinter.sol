@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
-import "./utils/AccessControlOperator.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+import "./utils/AccessControlOperator.sol";
 
 import "./interfaces/IFundraiseFactory.sol";
 import "./interfaces/IBaseOperator.sol";
@@ -25,7 +25,7 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
     address public immutable launchpadStaking;
     address public immutable tokenFactory;
 
-    bytes32 public constant DAO_ROLE = keccak256(abi.encode("DAO_ROLE"));
+    bytes32 public constant DAO_ROLE = keccak256("DAO_ROLE");
 
     mapping(address => NotSupportedTokenData) public tokenData; 
 
@@ -45,71 +45,71 @@ contract TokenMinter is AccessControlOperator, ReentrancyGuard {
         launchpadToken = _launchpadToken;
         tokenFactory = _tokenFactory;
         launchpadStaking = _launchpadStaking;
-        //_setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        //_grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         defaultTokenMintPrice = 500e18; 
         ownTokenMintPrice = 10000e18; 
     }
 
     function createToken( 
-        string calldata _name, 
-        string calldata _symbol,
-        uint _mintUnlock,
-        uint _burnUnlock,
-        uint _initialSupply,
-        bool _toAudit
+        string calldata name, 
+        string calldata symbol,
+        uint mintUnlock,
+        uint burnUnlock,
+        uint initialSupply,
+        bool toAudit
     ) external nonReentrant() returns(address tokenAddress) {
         address _managementAddress = msg.sender;
         require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter: Not enough tokens to payment");
 
-        tokenAddress = ITokenFactory(tokenFactory).createToken(_name, _symbol, _mintUnlock, _burnUnlock, viewOperatorAddress());
+        tokenAddress = ITokenFactory(tokenFactory).createToken(name, symbol, mintUnlock, burnUnlock, getOperatorAddress());
 
-        if(_toAudit == false){
+        if(!toAudit){
             IERC20Token(tokenAddress).initialize(
                 _managementAddress,
                 0,
-                _initialSupply,
+                initialSupply,
                 _managementAddress
             );
 
-            tokenData[tokenAddress].name = _name;
-            tokenData[tokenAddress].symbol = _symbol;
+            tokenData[tokenAddress].name = name;
+            tokenData[tokenAddress].symbol = symbol;
             tokenData[tokenAddress].managementAddress = _managementAddress;
             allNotSupportedTokens.push(tokenAddress);
         } else {
-            IBaseOperator(viewOperatorAddress()).tokenToAuditExternal(tokenAddress, _name, _symbol, _managementAddress);
+            IBaseOperator(getOperatorAddress()).tokenToAuditExternal(tokenAddress, name, symbol, _managementAddress);
         }
         
         ILaunchpadToken(launchpadToken).burnFrom(_managementAddress, defaultTokenMintPrice);
     }
 
     function createOwnToken(
-        string calldata _name, 
-        string calldata _symbol, 
-        uint _totalSupply, 
-        uint _decimals
+        string calldata name, 
+        string calldata symbol, 
+        uint totalSupply, 
+        uint decimals
     ) external nonReentrant() returns(address tokenAddress) {
         address _managementAddress = tx.origin;
-        require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter:  Not enough tokens to payment");
-        require(_totalSupply == 0, "TokenMinter: Invalid data");
-        require(_decimals == 18, "TokenMinter: Invalid data");
+        require(IERC20(launchpadToken).balanceOf(_managementAddress) >= defaultTokenMintPrice, "TokenMinter: Not enough tokens to payment");
+        require(totalSupply == 0, "TokenMinter: Invalid data");
+        require(decimals == 18, "TokenMinter: Invalid data");
 
         tokenAddress = msg.sender;
         
-        IBaseOperator(viewOperatorAddress()).tokenToAuditExternal(tokenAddress, _name, _symbol, _managementAddress);
+        IBaseOperator(getOperatorAddress()).tokenToAuditExternal(tokenAddress, name, symbol, _managementAddress);
 
         ILaunchpadToken(launchpadToken).burnFrom(_managementAddress, ownTokenMintPrice);
     }
 
-    function setDAORole(address _launchpadDAOAddress) external onlyRole(DISPOSABLE_CALLER) {
-        require(_launchpadDAOAddress != address(0), "TokenMinter: DAO zero address");
-        _setupRole(DAO_ROLE, _launchpadDAOAddress);
+    function setDAORole(address launchpadDAOAddress) external onlyRole(DISPOSABLE_CALLER) {
+        require(launchpadDAOAddress != address(0), "TokenMinter: DAO zero address");
+        _grantRole(DAO_ROLE, launchpadDAOAddress);
     }
 
-    function updatePrice(uint _priceTypeId, uint _newValue) external onlyRole(DAO_ROLE) {
-        if(_priceTypeId == 0){
-            defaultTokenMintPrice = _newValue;
+    function updatePrice(uint priceTypeId, uint newValue) external onlyRole(DAO_ROLE) {
+        if(priceTypeId == 0){
+            defaultTokenMintPrice = newValue;
         } else {
-            ownTokenMintPrice = _newValue;
+            ownTokenMintPrice = newValue;
         }
     }
 }
