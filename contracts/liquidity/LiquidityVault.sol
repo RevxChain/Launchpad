@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
 
-import "./utils/AccessControlOperator.sol";
+import "../utils/AccessControlOperator.sol";
 
-import "./interfaces/ILiquidityRouter.sol";
+import "../interfaces/ILiquidityRouter.sol";
 
 contract LiquidityVault is AccessControlOperator, ReentrancyGuard {
     using SafeERC20 for IERC20; 

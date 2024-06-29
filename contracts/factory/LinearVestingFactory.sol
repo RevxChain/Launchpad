@@ -4,9 +4,9 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "./utils/AccessControlOperator.sol";
+import "../utils/AccessControlOperator.sol";
 
-import "./interfaces/IFundraiseFactory.sol";
+import "../interfaces/IFundraiseFactory.sol";
 
 contract LinearVesting is AccessControl {
     using SafeERC20 for IERC20;

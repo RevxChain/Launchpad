@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-import "./utils/AccessControlOperator.sol";
+import "../utils/AccessControlOperator.sol";
 
 contract ERC20Token is ERC20Burnable, AccessControl {
 
