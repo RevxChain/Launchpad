@@ -55,7 +55,7 @@ contract LinearVesting is AccessControl {
 
         if(userData[_user].totalAllocation == 0){
             if(_user != managementAddress){
-                (_tier, ,_amount) = IFundraise(fundraiseAddress)._userData(_user);
+                (_tier, , _amount) = IFundraise(fundraiseAddress).userData(_user);
                 require(_amount > 0, "Vesting: You are not a participant");
                 if(vestingStartTimestamp[1] == 0){
                     _tier = 0;

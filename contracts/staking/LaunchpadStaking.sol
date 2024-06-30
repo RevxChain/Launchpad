@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-import "./utils/AccessControlOperator.sol";
+import "../utils/AccessControlOperator.sol";
 
 contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -23,6 +23,7 @@ contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGua
     uint public constant SECOND_TIER_REQUIREMENT =  3000e18; 
     uint public constant THIRD_TIER_REQUIREMENT = 10000e18; 
     uint public constant FOURTH_TIER_REQUIREMENT = 20000e18; 
+    uint public constant MINIMUM_AMOUNT_TO_VOTE = 3000e18;
 
     uint[5] public totalUsers;
 
@@ -79,13 +80,14 @@ contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGua
 
         rewardPool -= underlyingAmount;
         userInfo[_user].stakedAmount -= underlyingAmount;
+
         userInfo[_user].tier = calculateTierInternal(userInfo[_user].stakedAmount);
         calculaterTotalUsersInternal(_user, _beforeUserTier);
 
         IERC20(launchTokenAddress).safeTransfer(_user, underlyingAmount);
     }
 
-    function _addPaymentTokens(uint amount) external onlyRole(DEFAULT_CALLER) {
+    function addPaymentTokens(uint amount) external onlyRole(DEFAULT_CALLER) {
         rewardPool += amount;
     }
 
@@ -130,7 +132,11 @@ contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGua
         return totalSupply() * ACCURACY / (ACCURACY - (amount * ACCURACY / (rewardPool + amount)));
     }
 
-    function _transfer(address /* from */, address /* to */, uint256 /* amount */) internal view override { 
+    function transfer(address /* to */, uint256 /* amount */) public override returns(bool) { 
+        revert("LaunchpadStaking: Untransferable token");
+    }
+
+    function transferFrom(address /* from */, address /* to */, uint256 /* amount */) public override returns(bool) { 
         revert("LaunchpadStaking: Untransferable token");
     }
 }

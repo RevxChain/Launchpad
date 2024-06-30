@@ -17,7 +17,7 @@ contract SimpleScheduleVesting {
     address private immutable underlyingTokenAddress;
     address private immutable defaultCaller;
 
-    mapping(address user => bool) public claimed;
+    mapping(address => bool) public claimed;
 
     uint[6] public cliffTimestamp;
 
@@ -49,7 +49,7 @@ contract SimpleScheduleVesting {
         uint _tier;
 
         if(user != managementAddress){
-            (_tier, , claimedAmount) = IFundraise(fundraiseAddress)._userData(user);
+            (_tier, , claimedAmount) = IFundraise(fundraiseAddress).userData(user);
             require(claimedAmount > 0, "Vesting: You are not a participant");
         } else {
             claimedAmount = teamAmount;
@@ -80,7 +80,7 @@ contract ScheduleVesting {
 
     mapping(uint => Cliff) private cliffs;
     mapping(address => mapping(uint => bool)) public claimed;
-    mapping(address => uint) public claimedAmount;
+    mapping(address => uint) public totalClaimedAmount;
 
     struct Cliff{
         uint[5] cliffTimestamp;
@@ -148,10 +148,10 @@ contract ScheduleVesting {
 
     function claim(address user, uint cliffRound) external onlyCaller(msg.sender) returns(uint claimedAmount) {
         require(uint(Tier.Team) >= cliffRound , "Vesting: Invalid cliff round");
-        (uint _totalAmount, uint _tier);
+        (uint _totalAmount, uint _tier) = (0, 0);
 
         if(user != managementAddress){
-            (_tier, ,_totalAmount) = IFundraise(fundraiseAddress)._userData(user);
+            (_tier, ,_totalAmount) = IFundraise(fundraiseAddress).userData(user);
             require(_totalAmount > 0, "Vesting: You are not a participant");
         } else {
             _totalAmount = teamAmount;
@@ -164,9 +164,9 @@ contract ScheduleVesting {
         claimedAmount = _totalAmount * cliffs[_tier].cliffAmount[cliffRound] / DIV;
 
         claimed[user][cliffRound] = true;
-        claimedAmount[user] += claimedAmount;
+        totalClaimedAmount[user] += claimedAmount;
 
-        require(_totalAmount >= claimedAmount[user], "Vesting: Something went wrong");
+        require(_totalAmount >= totalClaimedAmount[user], "Vesting: Something went wrong");
 
         IERC20(underlyingTokenAddress).safeTransfer(user, claimedAmount);
     }

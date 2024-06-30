@@ -13,18 +13,18 @@ contract AccessControlOperator is IAccessControlOperator, AccessControl {
     bytes32 public constant DEFAULT_CALLER = keccak256("DEFAULT_CALLER");
 
     constructor() {
-        _setupRole(DISPOSABLE_CALLER, tx.origin); 
+        _grantRole(DISPOSABLE_CALLER, tx.origin); 
     }
 
     function getOperatorAddress() public view returns(address){
         return operatorAddress;
     }
 
-    function setupOperator(address operatorAdress) external onlyRole(DISPOSABLE_CALLER){
-        require(operatorAddress == address(0), "AccessControlOperator: Operator address has set already");
+    function setupOperator(address _operatorAdress) external onlyRole(DISPOSABLE_CALLER){
+        require(_operatorAdress == address(0), "AccessControlOperator: Operator address has set already");
         require(_operatorAdress != address(0), "AccessControlOperator: Operator zero address");
         require(_operatorAdress != address(this), "AccessControlOperator: Operator wrong address");
-        _setupRole(DEFAULT_CALLER, _operatorAdress);
+        _grantRole(DEFAULT_CALLER, _operatorAdress);
         operatorAddress = _operatorAdress;
     }
 

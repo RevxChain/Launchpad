@@ -114,7 +114,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         priceProposals[proposalId] = PriceProposal({
             proposalId: proposalId,
             priceType: _priceType,
-            priceTypeId: _priceTypeId,
+            priceTypeId: priceTypeId,
             baseValue: _baseValue,
             newValue: newValue,
             description: description,
@@ -130,7 +130,7 @@ contract LaunchpadDAO is ReentrancyGuard {
         priceProposalExist = true;
     }
 
-    function createAddressProposal(
+    function createRouterProposal(
         address newAddress, 
         string calldata description
     ) external nonReentrant() returns(bytes32 proposalId) {
@@ -176,13 +176,15 @@ contract LaunchpadDAO is ReentrancyGuard {
         bool vote
     ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
         address _user = msg.sender;
-        require(block.timestamp >= priceProposals[proposalId].startTime, "LaunchpadDAO: Too soon to vote");
-        require(priceProposals[proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
+        PriceProposal storage _proposal = priceProposals[proposalId];
+        
+        require(block.timestamp >= _proposal.startTime, "LaunchpadDAO: Too soon to vote");
+        require(_proposal.endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
 
-        if(priceProposals[proposalId].status == uint(Status.Preparation)){
-            priceProposals[proposalId].status = uint(Status.Voting);
+        if(_proposal.status == uint(Status.Preparation)){
+            _proposal.status = uint(Status.Voting);
         } else {
-            require(priceProposals[proposalId].status == uint(Status.Voting), "LaunchpadDAO: Something went wrong");
+            require(_proposal.status == uint(Status.Voting), "LaunchpadDAO: Something went wrong");
         }
 
         uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
@@ -191,14 +193,14 @@ contract LaunchpadDAO is ReentrancyGuard {
         require(priceProposalExist, "LaunchpadDAO: Price proposal is not exist");
 
         if(vote){
-            priceProposals[proposalId].forVotes += 1;
+            _proposal.forVotes += 1;
         } else {  
-            priceProposals[proposalId].againstVotes += 1;
+            _proposal.againstVotes += 1;
         } 
         
         voted[_user][proposalId] = true;
 
-        return (priceProposals[proposalId].forVotes, priceProposals[proposalId].againstVotes);
+        return (_proposal.forVotes, _proposal.againstVotes);
     }
 
     function voteRouterProposal(
@@ -206,12 +208,14 @@ contract LaunchpadDAO is ReentrancyGuard {
         bool vote
     ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
         address _user = msg.sender;
-        require(block.timestamp >= routerProposals[proposalId].startTime, "LaunchpadDAO: Too soon to vote");
-        require(routerProposals[proposalId].endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
-        if(routerProposals[proposalId].status == uint(Status.Preparation)){
-            routerProposals[proposalId].status = uint(Status.Voting);
+        RouterProposal storage _proposal = routerProposals[proposalId];
+
+        require(block.timestamp >= _proposal.startTime, "LaunchpadDAO: Too soon to vote");
+        require(_proposal.endTime > block.timestamp, "LaunchpadDAO: Proposal has ended");
+        if(_proposal.status == uint(Status.Preparation)){
+            _proposal.status = uint(Status.Voting);
         } else {
-            require(routerProposals[proposalId].status == uint(Status.Voting), "LaunchpadDAO: Proposal has ended");
+            require(_proposal.status == uint(Status.Voting), "LaunchpadDAO: Proposal has ended");
         }
 
         uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
@@ -220,13 +224,14 @@ contract LaunchpadDAO is ReentrancyGuard {
         require(routerProposalExist, "LaunchpadDAO: Router proposal is not exist");
 
         if(vote){
-            routerProposals[proposalId].forVotes += 1;
+            _proposal.forVotes += 1;
         } else {  
-            routerProposals[proposalId].againstVotes += 1;
+            _proposal.againstVotes += 1;
         } 
+        
         voted[_user][proposalId] = true;
 
-        return (routerProposals[proposalId].forVotes, routerProposals[proposalId].againstVotes);
+        return (_proposal.forVotes, _proposal.againstVotes);
     }
 
     function executePriceProposal(bytes32 proposalId) external nonReentrant() returns(bool result) {
@@ -271,7 +276,7 @@ contract LaunchpadDAO is ReentrancyGuard {
     }
 
     function calculatePriceProposalId(
-        string calldata priceType, 
+        string memory priceType, 
         uint baseValue, 
         uint newValue, 
         string calldata description, 

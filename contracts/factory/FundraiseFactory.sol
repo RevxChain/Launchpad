@@ -115,22 +115,22 @@ contract Fundraise is AccessControl, ReentrancyGuard {
     }
 
     function calculateActualRoundInternal(
-        uint fundraiseStart, 
-        uint fundraiseDuration, 
-        uint fundraiseRoundDuration
+        uint _fundraiseStart, 
+        uint _fundraiseDuration, 
+        uint _fundraiseRoundDuration
     ) internal view returns(uint tier) {
-        require(fundraiseStart + fundraiseDuration >= block.timestamp, "Fundraise: fundraise is closed");
-        require(block.timestamp >= fundraiseStart, "Fundraise: fundraise is not opened yet");
-        if(block.timestamp >= fundraiseStart + fundraiseRoundDuration * uint(Tier.Fourth)){ 
+        require(_fundraiseStart + _fundraiseDuration >= block.timestamp, "Fundraise: fundraise is closed");
+        require(block.timestamp >= _fundraiseStart, "Fundraise: fundraise is not opened yet");
+        if(block.timestamp >= _fundraiseStart + _fundraiseRoundDuration * uint(Tier.Fourth)){ 
             return uint(Tier.FCFS);
         } else {
-            if(block.timestamp >= fundraiseStart + fundraiseRoundDuration * uint(Tier.Third)){ 
+            if(block.timestamp >= _fundraiseStart + _fundraiseRoundDuration * uint(Tier.Third)){ 
                 return uint(Tier.First);
             } else {
-                if(block.timestamp >= fundraiseStart + fundraiseRoundDuration * uint(Tier.Second)){ 
+                if(block.timestamp >= _fundraiseStart + _fundraiseRoundDuration * uint(Tier.Second)){ 
                     return uint(Tier.Second);
                 } else {
-                    if(block.timestamp >= fundraiseStart + fundraiseRoundDuration){ 
+                    if(block.timestamp >= _fundraiseStart + _fundraiseRoundDuration){ 
                         return uint(Tier.Third);
                     } else {
                         return uint(Tier.Fourth);
@@ -140,7 +140,7 @@ contract Fundraise is AccessControl, ReentrancyGuard {
         }
     }
 
-    function _userData(address user) external view returns(uint tier, uint totalAllocation, uint spentAllocation) {
+    function userData(address user) external view returns(uint tier, uint totalAllocation, uint spentAllocation) {
         return (participants[user].tier, participants[user].totalAllocation, participants[user].spentAllocation);
     }
 }

@@ -18,7 +18,7 @@ interface IScheduleVesting {
 
     function claimed(address user, uint cliffRound) external view returns(bool);
 
-    function claimedAmount(address user) external view returns(uint);
+    function totalClaimedAmount(address user) external view returns(uint);
 
     function claim(address user, uint cliffRound) external returns(uint claimedAmount);
 

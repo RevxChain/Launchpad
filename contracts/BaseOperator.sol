@@ -165,7 +165,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         require(!refunded[_user][token], "BaseOperator: Refunded already");
         statusVerificationInternal(token, uint(Status.Cancellation));
         stablecoinAddressVerificationInternal(stablecoinAddress);
-        (uint _tier, , uint _spentAllocation) = IFundraise(tokenData[token].fundraiseAddress)._userData(_user);
+        (uint _tier, , uint _spentAllocation) = IFundraise(tokenData[token].fundraiseAddress).userData(_user);
         uint _tokenPrice = IFundraise(tokenData[token].fundraiseAddress).oneTokenPrice(_tier);
         uint _refundAmount = _tokenPrice * _spentAllocation;
         balanceVerificationInternal(stablecoinAddress, address(this), _refundAmount);
@@ -282,7 +282,7 @@ contract BaseOperator is AccessControl, ReentrancyGuard, Pausable {
         uint _halfPayment = DEFAULT_FUNDRAISE_PRICE / 2;
         IERC20(launchpadToken).safeTransferFrom(managementAddress, launchpadStaking, _halfPayment);
         ILaunchpadToken(launchpadToken).burnFrom(managementAddress, _halfPayment);
-        ILaunchpadStaking(launchpadStaking)._addPaymentTokens(_halfPayment);
+        ILaunchpadStaking(launchpadStaking).addPaymentTokens(_halfPayment);
     }
 
     function createVestingInternal(address token, address vestingAddress) internal {
