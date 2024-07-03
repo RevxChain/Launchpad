@@ -10,6 +10,7 @@ interface ILaunchpadDAO {
     function launchpadStakingAddress() external view returns(address);
     function tokenMinterAddress() external view returns(address);
     function liquidityVaultAddress() external view returns(address);
+    function launchpadDAOBribeAddress() external view returns(address);
 
     function voted(address user, bytes32 proposalId) external view returns(bool voted);
     function priceProposals(bytes32 proposalId) external view returns(PriceProposal memory);
@@ -56,12 +57,14 @@ interface ILaunchpadDAO {
 
     function votePriceProposal(
         bytes32 proposalId, 
-        bool vote
+        bool vote,
+        address grafter
     ) external returns(uint forVotes, uint againstVotes);
 
     function voteRouterProposal(
         bytes32 proposalId, 
-        bool vote
+        bool vote,
+        address grafter
     ) external returns(uint forVotes, uint againstVotes);
 
     function executePriceProposal(bytes32 proposalId) external returns(bool result);

@@ -8,6 +8,7 @@ import "../interfaces/ILiquidityVault.sol";
 import "../interfaces/ITokenMinter.sol";
 import "../interfaces/ILaunchpadToken.sol";
 import "../interfaces/ILaunchpadStaking.sol";
+import "../interfaces/ILaunchpadDAOBribe.sol";
 
 contract LaunchpadDAO is ReentrancyGuard {
 
@@ -26,6 +27,7 @@ contract LaunchpadDAO is ReentrancyGuard {
     address public immutable launchpadStakingAddress;
     address public immutable tokenMinterAddress;
     address public immutable liquidityVaultAddress;
+    address public immutable launchpadDAOBribeAddress;
     
     mapping(bytes32 => PriceProposal) public priceProposals;
     mapping(bytes32 => RouterProposal) public routerProposals;
@@ -67,12 +69,14 @@ contract LaunchpadDAO is ReentrancyGuard {
         address _launchpadTokenAddress, 
         address _launchpadStakingAddress, 
         address _tokenMinterAddress, 
-        address _liquidityVaultAddress
+        address _liquidityVaultAddress,
+        address _launchpadDAOBribeAddress
     ) {
         launchpadTokenAddress = _launchpadTokenAddress;
         launchpadStakingAddress = _launchpadStakingAddress;
         tokenMinterAddress = _tokenMinterAddress;
         liquidityVaultAddress = _liquidityVaultAddress;
+        launchpadDAOBribeAddress = _launchpadDAOBribeAddress;
     }
 
     function createPriceProposal(
@@ -173,9 +177,12 @@ contract LaunchpadDAO is ReentrancyGuard {
 
     function votePriceProposal(
         bytes32 proposalId, 
-        bool vote
+        bool vote,
+        address grafter
     ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
-        address _user = msg.sender;
+        ILaunchpadDAOBribe(launchpadDAOBribeAddress).closeExpiredBribe(grafter);
+        ILaunchpadDAOBribe(launchpadDAOBribeAddress).validateBribe(msg.sender, grafter);
+
         PriceProposal storage _proposal = priceProposals[proposalId];
         
         require(block.timestamp >= _proposal.startTime, "LaunchpadDAO: Too soon to vote");
@@ -187,9 +194,9 @@ contract LaunchpadDAO is ReentrancyGuard {
             require(_proposal.status == uint(Status.Voting), "LaunchpadDAO: Something went wrong");
         }
 
-        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
+        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(grafter).stakedAmount;
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
-        require(!voted[_user][proposalId], "LaunchpadDAO: You are voted already");
+        require(!voted[grafter][proposalId], "LaunchpadDAO: You are voted already");
         require(priceProposalExist, "LaunchpadDAO: Price proposal is not exist");
 
         if(vote){
@@ -198,16 +205,19 @@ contract LaunchpadDAO is ReentrancyGuard {
             _proposal.againstVotes += 1;
         } 
         
-        voted[_user][proposalId] = true;
+        voted[grafter][proposalId] = true;
 
         return (_proposal.forVotes, _proposal.againstVotes);
     }
 
     function voteRouterProposal(
         bytes32 proposalId, 
-        bool vote
+        bool vote,
+        address grafter
     ) external nonReentrant() returns(uint forVotes, uint againstVotes) {
-        address _user = msg.sender;
+        ILaunchpadDAOBribe(launchpadDAOBribeAddress).closeExpiredBribe(grafter);
+        ILaunchpadDAOBribe(launchpadDAOBribeAddress).validateBribe(msg.sender, grafter);
+
         RouterProposal storage _proposal = routerProposals[proposalId];
 
         require(block.timestamp >= _proposal.startTime, "LaunchpadDAO: Too soon to vote");
@@ -218,9 +228,9 @@ contract LaunchpadDAO is ReentrancyGuard {
             require(_proposal.status == uint(Status.Voting), "LaunchpadDAO: Proposal has ended");
         }
 
-        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(_user).stakedAmount;
+        uint _stakedAmount = ILaunchpadStaking(launchpadStakingAddress).userInfo(grafter).stakedAmount;
         require(_stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadDAO: Not enough staked tokens to vote");
-        require(!voted[_user][proposalId], "LaunchpadDAO: You are voted already");
+        require(!voted[grafter][proposalId], "LaunchpadDAO: You are voted already");
         require(routerProposalExist, "LaunchpadDAO: Router proposal is not exist");
 
         if(vote){
@@ -229,7 +239,7 @@ contract LaunchpadDAO is ReentrancyGuard {
             _proposal.againstVotes += 1;
         } 
         
-        voted[_user][proposalId] = true;
+        voted[grafter][proposalId] = true;
 
         return (_proposal.forVotes, _proposal.againstVotes);
     }

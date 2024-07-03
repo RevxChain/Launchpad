@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 import "../utils/AccessControlOperator.sol";
 
+import "../interfaces/ILaunchpadDAOBribe.sol";
+
 contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -28,6 +30,7 @@ contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGua
     uint[5] public totalUsers;
 
     address public immutable launchTokenAddress;
+    address public immutable launchpadDAOBribe;
 
     mapping(address => UserInfo) public userInfo;
 
@@ -39,11 +42,12 @@ contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGua
         uint unlockTime;
     }
 
-    constructor(address _launchTokenAddress) ERC20("sToken", "ST") {
+    constructor(address _launchTokenAddress, address _launchpadDAOBribe) ERC20("sToken", "ST") {
         launchTokenAddress = _launchTokenAddress;
         _mint(address(this), INITIALIZATION_VALUE);
         lastUpdateRewardPool = block.timestamp;
         rewardPool = INITIALIZATION_VALUE;
+        launchpadDAOBribe = _launchpadDAOBribe;
     }
 
     function deposit(uint underlyingAmount, uint lockDuration) external returns(uint userShare) {
@@ -79,7 +83,19 @@ contract LaunchpadStaking is ERC20Burnable, AccessControlOperator, ReentrancyGua
         _burn(_user, sTokenAmount);
 
         rewardPool -= underlyingAmount;
-        userInfo[_user].stakedAmount -= underlyingAmount;
+
+        if(underlyingAmount >= userInfo[_user].stakedAmount){
+            userInfo[_user].stakedAmount = 0;
+        } else {
+            userInfo[_user].stakedAmount -= underlyingAmount;
+        }
+        
+        if(
+            ILaunchpadDAOBribe(launchpadDAOBribe).grafterInfo(_user).opened ||
+            ILaunchpadDAOBribe(launchpadDAOBribe).grafterInfo(_user).purchasedTo >= block.timestamp
+        ){
+            require(userInfo[_user].stakedAmount >= MINIMUM_AMOUNT_TO_VOTE, "LaunchpadStaking: not enough staked tokens to bribe");
+        }
 
         userInfo[_user].tier = calculateTierInternal(userInfo[_user].stakedAmount);
         calculaterTotalUsersInternal(_user, _beforeUserTier);
